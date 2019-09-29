@@ -1,0 +1,2 @@
+[1] Paper del que sacaron las imagenes de la presentacion del proyecto.
+[2] Hablan sobre la utilizacion en conjunto de los sensores (ultrasonico e infrarojo)
