@@ -1,4 +1,4 @@
-# SOLNIDAR
+# SOLINDAR
 
 ## Integrantes del equipo (9)
 
