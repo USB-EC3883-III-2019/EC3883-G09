@@ -35,32 +35,24 @@ class MplCanvas(FigureCanvas):
         #Plot config
         self.fig = plt.figure()  
         FigureCanvas.__init__(self, self.fig)
-        self.axes = self.fig.add_subplot(111)
+        self.axes = self.fig.add_subplot(111, projection="polar")
         #hide x's and y's labels 
         self.axes.set_yticklabels([])
-        self.axes.set_xticklabels([])
+        
 
         #Grid configuration
         
         self.axes.grid(b=True,which='major',color='k',linestyle='-')
         self.axes.minorticks_on()
         self.axes.grid(b=True,which='minor',linestyle='--')
-        
-        
+        self.axes.set_facecolor((0,0,0))
+
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(parent) #really important to do this for the gui to show image
-        self.canvas.move(60,80) 
-
+        self.canvas.move(10,40) 
         
-        
-        
-        self.xticks = np.linspace(0,1,10) #these both are based on project requirements
-        self.yticks = np.linspace(0,3,10)
-        self.axes.xaxis.set_ticks(self.xticks) 
-        self.axes.yaxis.set_ticks(self.yticks)
-
-        #open serial port for serial communication with DEM0QE
-        # self.dataSerial = openPort(listPorts(sys.platform))
+        self.fig.set_facecolor("none")
+        self.canvas.setStyleSheet("background-color:transparent;")
 
         
     
@@ -146,57 +138,25 @@ class Window(QMainWindow):
         #timer configuration for refreshing graph
         self.timer = None
 
-
-        
-
         #window config
-        self.title = "Demoqe Project"
+        self.title = "SONAR/LIDAR"
         self.top = 100
         self.left = 100
-        self.width = 1000 
+        self.width = 800 
         self.height = 600 
         
         #push button config 
         button = QPushButton("Start", self) 
-        button.move(790,350)
-        button.clicked.connect(self.__plot(0))
+        button.move(600,200)
 
         #push button config 
         button = QPushButton("Stop", self) 
-        button.move(790,400)
+        button.move(600,250)
         button.clicked.connect(self.stop)
 
 
         self.setWindowIcon(QtGui.QIcon("icon.png"))
-        
-        #slider for analog channel 1
-        self.text = QLabel("Channel 1", self)
-        self.text.move(800,75) 
 
-
-        self.channelA2 = QSlider(Qt.Horizontal, self)
-        self.channelA2.setGeometry(750,150,170,20)
-        self.channelA2.setMinimum(0)
-        self.channelA2.setMaximum(2)
-        self.channelA2.setTickPosition(QSlider.TicksAbove)
-        self.channelA2.setTickInterval(1)
-        self.channelA2.valueChanged.connect(self.sliderChangedValue)
-
-        self.chA2checkBox = QCheckBox("",self)
-        self.chA2checkBox.move(950,142)
-        self.chA2checkBox.resize(40,40) 
-
- 
-
-        self.chD1checkBox = QCheckBox("",self)
-        
-        self.chD1checkBox.move(950,192)
-        self.chD1checkBox.resize(40,40) 
-
-        self.chD2checkBox = QCheckBox("",self)
-        
-        self.chD2checkBox.move(950,242)
-        self.chD2checkBox.resize(40,40) 
 
 
         self.InitWindow()
@@ -213,13 +173,6 @@ class Window(QMainWindow):
         self.newTb = textBox(self)
         self.newTb.show()
  
-
-    
-        
-    
-    
-
-
 
     def plot(selfs):
         
