@@ -1,0 +1,9 @@
+# CodeWarrior Files
+FLASH
+.SOLINDAR.g_c
+.SOLINDAR.g_x
+.cwGeneratedFileSetLog
+ReferencedRSESystems.xml
+.metadata
+RemoteLaunch
+RemoteSystemsTempFiles
