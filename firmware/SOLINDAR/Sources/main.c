@@ -38,21 +38,64 @@
 #include "IO_Map.h"
 
 /* User includes (#include below this line is not maintained by Processor Expert) */
+//#include "Motor_Driver.h"
+#define STEPS_MODE 0    //0 for whole steps, 1 for half steps
+#define MAX_POS 32      //32 for whole stps, 64 for half stps
+
+//Constants
+//Array for whole steps
+const char ws[] = {    10,     //1010
+                        9,     //1001
+                        5,     //0101
+                        6,     //0110
+};
+//Array for half steps
+const char hs[] = {    10,     //1010
+                       11,     //1000
+                        9,     //1001
+                        1,     //0001
+                        5,     //0101
+                        4,     //0100
+                        6,     //0110
+                        2,     //0010
+};
+
 
 void main(void)
 {
   /* Write your local variable definition here */
 
+  int pos = 0;
+  bool flag_direction = 'TRUE';
+  
   /*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
   PE_low_level_init();
   /*** End of Processor Expert internal initialization.                    ***/
 
   /* Write your code here */
   /* For example: for(;;) { } */
+
   
   for (;;){
-	  
-
+	    if(STEPS_MODE){
+	        //half steps
+	        //%8
+	    	Bits1_PutVal(hs[pos%8]);
+	    }else{
+	        //whole steps
+	        //%4
+	    	Bits1_PutVal(ws[pos%4]);
+	    }
+	    
+	    if(flag_direction){
+	    	pos++;	
+	    }else{
+	    	pos--;
+	    }
+	    
+	    if(pos>MAX_POS || pos<0){
+	    	flag_direction = !flag_direction;
+	    }
   }
 
   /*** Don't write any code pass this line, or it will be deleted during code generation. ***/
