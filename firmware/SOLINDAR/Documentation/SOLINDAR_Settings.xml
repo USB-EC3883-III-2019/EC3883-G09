@@ -827,47 +827,169 @@ asm(BGND);
       </boolgroup>
     </CompilerProperties>
   </CPU_Bean>
-  <Bean name="Bits1" type="BitsIO">
+  <Bean name="MBit1" type="MultiBitIO">
     <Enabled v="Y" />
     <Properties>
-      <Component_name v="Bits1" />
-      <Port v="PTA" />
+      <Component_Name v="MBit1" />
       <list name="Pins" v="4">
-        <group name="Pin0">
-          <Pin v="PTA0_KBI1P0_TPM1CH0_ADP0_ACMP1PLUS" />
-          <Slew_rate_control_for_PTA0 v="no" />
-          <Drive_strength_for_PTA0 v="High" />
-        </group>
-        <group name="Pin1">
-          <Pin v="PTA1_KBI1P1_TPM2CH0_ADP1_ACMP1MINUS" />
-          <Slew_rate_control_for_PTA1 v="no" />
-          <Drive_strength_for_PTA1 v="High" />
-        </group>
-        <group name="Pin2">
-          <Pin v="PTA2_KBI1P2_SDA1_ADP2" />
-          <Slew_rate_control_for_PTA2 v="no" />
-          <Drive_strength_for_PTA2 v="High" />
-        </group>
-        <group name="Pin3">
-          <Pin v="PTA3_KBI1P3_SCL1_ADP3" />
-          <Slew_rate_control_for_PTA3 v="no" />
-          <Drive_strength_for_PTA3 v="High" />
-        </group>
-      </list>
-      <Pull_resistor sel_value="no pull resistor">
-        
+        <inhrbean type="BitIO">
+          <Enabled v="Y" />
+          <Template v="Interface_BitIO" />
+          <Properties>
+            <Component_name v="Inhr1" />
+            <Pin_for_I_O v="PTD1_KBI2P1_MOSI2" />
+            <Pull_resistor sel_value="no pull resistor">
+              
 autoselected pull
 
-        <EmptySection_DummyValue />
-      </Pull_resistor>
-      <Open_drain v="push-pull" />
+              <EmptySection_DummyValue />
+            </Pull_resistor>
+            <Open_drain v="push-pull" />
+            <Slew_rate_control_for_PTD1 v="no" />
+            <Drive_strength_for_PTD1 v="High" />
+            <Direction v="Output" />
+            <group name="Initialization">
+              <Init__direction v="Output" />
+              <Init__value v="0" />
+            </group>
+            <Safe_mode v="yes" />
+            <Optimization_for v="speed" />
+          </Properties>
+          <Methods>
+            <GetDir v="generate code" />
+            <SetDir v="don&amp;apos;t generate code" />
+            <SetInput v="don&amp;apos;t generate code" />
+            <SetOutput v="don&amp;apos;t generate code" />
+            <GetVal v="generate code" />
+            <PutVal v="generate code" />
+            <ClrVal v="generate code" />
+            <SetVal v="generate code" />
+            <NegVal v="generate code" />
+          </Methods>
+          <Events>
+            <EmptySection_DummyValue />
+          </Events>
+        </inhrbean>
+        <inhrbean type="BitIO">
+          <Enabled v="Y" />
+          <Template v="Interface_BitIO" />
+          <Properties>
+            <Component_name v="Inhr2" />
+            <Pin_for_I_O v="PTD0_KBI2P0_SPSCK2" />
+            <Pull_resistor sel_value="no pull resistor">
+              
+autoselected pull
+
+              <EmptySection_DummyValue />
+            </Pull_resistor>
+            <Open_drain v="push-pull" />
+            <Slew_rate_control_for_PTD0 v="no" />
+            <Drive_strength_for_PTD0 v="High" />
+            <Direction v="Output" />
+            <group name="Initialization">
+              <Init__direction v="Output" />
+              <Init__value v="0" />
+            </group>
+            <Safe_mode v="yes" />
+            <Optimization_for v="speed" />
+          </Properties>
+          <Methods>
+            <GetDir v="generate code" />
+            <SetDir v="don&amp;apos;t generate code" />
+            <SetInput v="don&amp;apos;t generate code" />
+            <SetOutput v="don&amp;apos;t generate code" />
+            <GetVal v="generate code" />
+            <PutVal v="generate code" />
+            <ClrVal v="generate code" />
+            <SetVal v="generate code" />
+            <NegVal v="generate code" />
+          </Methods>
+          <Events>
+            <EmptySection_DummyValue />
+          </Events>
+        </inhrbean>
+        <inhrbean type="BitIO">
+          <Enabled v="Y" />
+          <Template v="Interface_BitIO" />
+          <Properties>
+            <Component_name v="Inhr3" />
+            <Pin_for_I_O v="PTH7_SDA2" />
+            <Pull_resistor sel_value="no pull resistor">
+              
+autoselected pull
+
+              <EmptySection_DummyValue />
+            </Pull_resistor>
+            <Open_drain v="push-pull" />
+            <Slew_rate_control_for_PTH7 v="no" />
+            <Drive_strength_for_PTH7 v="High" />
+            <Direction v="Output" />
+            <group name="Initialization">
+              <Init__direction v="Output" />
+              <Init__value v="0" />
+            </group>
+            <Safe_mode v="yes" />
+            <Optimization_for v="speed" />
+          </Properties>
+          <Methods>
+            <GetDir v="generate code" />
+            <SetDir v="don&amp;apos;t generate code" />
+            <SetInput v="don&amp;apos;t generate code" />
+            <SetOutput v="don&amp;apos;t generate code" />
+            <GetVal v="generate code" />
+            <PutVal v="generate code" />
+            <ClrVal v="generate code" />
+            <SetVal v="generate code" />
+            <NegVal v="generate code" />
+          </Methods>
+          <Events>
+            <EmptySection_DummyValue />
+          </Events>
+        </inhrbean>
+        <inhrbean type="BitIO">
+          <Enabled v="Y" />
+          <Template v="Interface_BitIO" />
+          <Properties>
+            <Component_name v="Inhr4" />
+            <Pin_for_I_O v="PTH6_SCL2" />
+            <Pull_resistor sel_value="no pull resistor">
+              
+autoselected pull
+
+              <EmptySection_DummyValue />
+            </Pull_resistor>
+            <Open_drain v="push-pull" />
+            <Slew_rate_control_for_PTH6 v="no" />
+            <Drive_strength_for_PTH6 v="High" />
+            <Direction v="Output" />
+            <group name="Initialization">
+              <Init__direction v="Output" />
+              <Init__value v="0" />
+            </group>
+            <Safe_mode v="yes" />
+            <Optimization_for v="speed" />
+          </Properties>
+          <Methods>
+            <GetDir v="generate code" />
+            <SetDir v="don&amp;apos;t generate code" />
+            <SetInput v="don&amp;apos;t generate code" />
+            <SetOutput v="don&amp;apos;t generate code" />
+            <GetVal v="generate code" />
+            <PutVal v="generate code" />
+            <ClrVal v="generate code" />
+            <SetVal v="generate code" />
+            <NegVal v="generate code" />
+          </Methods>
+          <Events>
+            <EmptySection_DummyValue />
+          </Events>
+        </inhrbean>
+      </list>
       <Direction v="Output" />
       <group name="Initialization">
         <Init__direction v="Output" />
         <Init__value v="0" />
       </group>
-      <Safe_mode v="yes" />
-      <Optimization_for v="speed" />
     </Properties>
     <Methods>
       <GetDir v="generate code" />

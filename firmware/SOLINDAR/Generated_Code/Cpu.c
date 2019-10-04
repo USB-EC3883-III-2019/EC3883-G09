@@ -7,7 +7,7 @@
 **     Version     : Component 01.003, Driver 01.40, CPU db: 3.00.067
 **     Datasheet   : MC9S08QE128RM Rev. 2 6/2007
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-03, 11:42, # CodeGen: 5
+**     Date/Time   : 2019-10-04, 09:28, # CodeGen: 7
 **     Abstract    :
 **         This component "MC9S08QE128_80" contains initialization 
 **         of the CPU and provides basic methods and events for 
@@ -66,7 +66,11 @@
 
 #pragma MESSAGE DISABLE C4002 /* WARNING C4002: Result not used is ignored */
 
-#include "Bits1.h"
+#include "MBit1.h"
+#include "Inhr1.h"
+#include "Inhr2.h"
+#include "Inhr3.h"
+#include "Inhr4.h"
 #include "PE_Types.h"
 #include "PE_Error.h"
 #include "PE_Const.h"
@@ -201,12 +205,18 @@ void PE_low_level_init(void)
   /* SCGC2: DBG=1,FLS=1,IRQ=1,KBI=1,ACMP=1,RTC=1,SPI2=1,SPI1=1 */
   setReg8(SCGC2, 0xFFU);                
   /* Common initialization of the CPU registers */
-  /* PTAD: PTAD3=0,PTAD2=0,PTAD1=0,PTAD0=0 */
-  clrReg8Bits(PTAD, 0x0FU);             
-  /* PTAPE: PTAPE3=0,PTAPE2=0,PTAPE1=0,PTAPE0=0 */
-  clrReg8Bits(PTAPE, 0x0FU);            
-  /* PTADD: PTADD3=1,PTADD2=1,PTADD1=1,PTADD0=1 */
-  setReg8Bits(PTADD, 0x0FU);            
+  /* PTDD: PTDD1=0,PTDD0=0 */
+  clrReg8Bits(PTDD, 0x03U);             
+  /* PTDPE: PTDPE1=0,PTDPE0=0 */
+  clrReg8Bits(PTDPE, 0x03U);            
+  /* PTDDD: PTDDD1=1,PTDDD0=1 */
+  setReg8Bits(PTDDD, 0x03U);            
+  /* PTHD: PTHD7=0,PTHD6=0 */
+  clrReg8Bits(PTHD, 0xC0U);             
+  /* PTHPE: PTHPE7=0,PTHPE6=0 */
+  clrReg8Bits(PTHPE, 0xC0U);            
+  /* PTHDD: PTHDD7=1,PTHDD6=1 */
+  setReg8Bits(PTHDD, 0xC0U);            
   /* PTASE: PTASE7=0,PTASE6=0,PTASE4=0,PTASE3=0,PTASE2=0,PTASE1=0,PTASE0=0 */
   clrReg8Bits(PTASE, 0xDFU);            
   /* PTBSE: PTBSE7=0,PTBSE6=0,PTBSE5=0,PTBSE4=0,PTBSE3=0,PTBSE2=0,PTBSE1=0,PTBSE0=0 */
@@ -244,7 +254,11 @@ void PE_low_level_init(void)
   /* PTJDS: PTJDS7=1,PTJDS6=1,PTJDS5=1,PTJDS4=1,PTJDS3=1,PTJDS2=1,PTJDS1=1,PTJDS0=1 */
   setReg8(PTJDS, 0xFFU);                
   /* ### Shared modules init code ... */
-  /* ### BitsIO "Bits1" init code ... */
+  /* ### BitIO "Inhr1" init code ... */
+  /* ### BitIO "Inhr2" init code ... */
+  /* ### BitIO "Inhr3" init code ... */
+  /* ### BitIO "Inhr4" init code ... */
+  /* ### MultiBitIO "MBit1" init code ... */
   CCR_lock = (byte)0;
   __EI();                              /* Enable interrupts */
 }

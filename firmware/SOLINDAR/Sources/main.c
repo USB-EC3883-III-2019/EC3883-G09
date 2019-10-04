@@ -30,7 +30,11 @@
 /* Including needed modules to compile this module/procedure */
 #include "Cpu.h"
 #include "Events.h"
-#include "Bits1.h"
+#include "MBit1.h"
+#include "Inhr1.h"
+#include "Inhr2.h"
+#include "Inhr3.h"
+#include "Inhr4.h"
 /* Include shared modules, which are used for whole project */
 #include "PE_Types.h"
 #include "PE_Error.h"
@@ -40,17 +44,11 @@
 /* User includes (#include below this line is not maintained by Processor Expert) */
 //#include "Motor_Driver.h"
 #define STEPS_MODE 0    //0 for whole steps, 1 for half steps
-#define MAX_POS 32      //32 for whole stps, 64 for half stps
+#define MAX_POS 64      
 
 //Constants
-//Array for whole steps
-const char ws[] = {    10,     //1010
-                        9,     //1001
-                        5,     //0101
-                        6,     //0110
-};
 //Array for half steps
-const char hs[] = {    10,     //1010
+const char steps[] = { 10,     //1010
                        11,     //1000
                         9,     //1001
                         1,     //0001
@@ -66,7 +64,7 @@ void main(void)
   /* Write your local variable definition here */
 
   int pos = 0;
-  bool flag_direction = 'TRUE';
+  bool flag_direction = TRUE;
   
   /*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
   PE_low_level_init();
@@ -74,28 +72,42 @@ void main(void)
 
   /* Write your code here */
   /* For example: for(;;) { } */
-
-  
+ 
   for (;;){
-	    if(STEPS_MODE){
-	        //half steps
-	        //%8
-	    	Bits1_PutVal(hs[pos%8]);
-	    }else{
-	        //whole steps
-	        //%4
-	    	Bits1_PutVal(ws[pos%4]);
-	    }
-	    
-	    if(flag_direction){
-	    	pos++;	
-	    }else{
-	    	pos--;
-	    }
-	    
-	    if(pos>MAX_POS || pos<0){
-	    	flag_direction = !flag_direction;
-	    }
+
+    
+    
+/*###################################################################
+                          Motor Control
+###################################################################*/
+
+    //Applying signal
+    MBit1_PutVal(steps[pos%8]);
+    //Signal for the next step
+    if(STEPS_MODE){
+    	//half steps
+      if(flag_direction){
+        pos++;	
+      }else{
+        pos--;
+      }
+    }else{
+        //whole steps
+      if(flag_direction){
+        pos += 2;	
+      }else{
+        pos -= 2;
+      }
+    }
+    //Switching rotation's direction if counter is out of range
+    if(pos>=MAX_POS || pos<=0){
+      flag_direction = !flag_direction;
+    }
+/*###################################################################
+					End of Motor Control
+###################################################################*/
+
+      //Falta pos = pos/2 cuando son whole steps en el entramado.
   }
 
   /*** Don't write any code pass this line, or it will be deleted during code generation. ***/

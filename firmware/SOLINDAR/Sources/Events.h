@@ -34,7 +34,11 @@
 #include "PE_Error.h"
 #include "PE_Const.h"
 #include "IO_Map.h"
-#include "Bits1.h"
+#include "MBit1.h"
+#include "Inhr1.h"
+#include "Inhr2.h"
+#include "Inhr3.h"
+#include "Inhr4.h"
 
 
 /* END Events */
