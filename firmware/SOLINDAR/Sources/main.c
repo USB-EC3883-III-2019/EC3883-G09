@@ -35,6 +35,10 @@
 #include "Inhr2.h"
 #include "Inhr3.h"
 #include "Inhr4.h"
+#include "Trigger.h"
+#include "TI1.h"
+#include "FC161.h"
+#include "Bit1.h"
 /* Include shared modules, which are used for whole project */
 #include "PE_Types.h"
 #include "PE_Error.h"
@@ -42,7 +46,6 @@
 #include "IO_Map.h"
 
 /* User includes (#include below this line is not maintained by Processor Expert) */
-//#include "Motor_Driver.h"
 #define STEPS_MODE 0    //0 for whole steps, 1 for half steps
 #define MAX_POS 64      
 
@@ -63,8 +66,22 @@ void main(void)
 {
   /* Write your local variable definition here */
 
-  int pos = 0;
-  bool flag_direction = TRUE;
+  char pos = 0, frame[4];
+  /*
+   * pos       : position. Motor's position.
+   * frame     : frame for serial communication.
+   */
+  bool dir_flg = TRUE, trgg_flg = TRUE;
+  /*
+   * dir_flg   : direction flag. TRUE for clockwise, FALSE for counterclockwise.
+   * trgg_flg  : trigger flag. 
+   */
+  unsigned int echo_time, son_dis;
+  /*
+   * echo_time : echo time. Duration of echo signal in HIGH state.
+   * son_dis   : sonar distance. Distance measured by the SONAR.
+   */
+   
   
   /*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
   PE_low_level_init();
@@ -75,39 +92,61 @@ void main(void)
  
   for (;;){
 
-    
-    
+/*###################################################################
+						Sonar Control
+###################################################################*/   
+	  //Trigger
+	  Trigger_SetVal();	//Set output to HIGH. Start trigger.
+	  TI1_Enable();		//Enable interrupt service.
+	  while(trgg_flg){}	//Wait for interrupt.
+	  
+	  //Ultrasonic burst
+	  
+	  //Echo
+	  while(!Bit1_GetVal()){}	//Wait for the echo to start.
+	  FC161_Reset();			//Reset timer.
+	  while(Bit1_GetVal()){}	//Wait for the echo to finish.
+	  FC161_GetTimeUS(&echo_time);	//Get the time of flight.
+	  
+	  //Calculate Distance
+	  son_dis = echo_time/58;
+	  
+/*###################################################################
+		     		End of Sonar Control
+###################################################################*/
 /*###################################################################
                           Motor Control
 ###################################################################*/
 
     //Applying signal
     MBit1_PutVal(steps[pos%8]);
+    
     //Signal for the next step
     if(STEPS_MODE){
     	//half steps
-      if(flag_direction){
+      if(dir_flg){
         pos++;	
       }else{
         pos--;
       }
     }else{
         //whole steps
-      if(flag_direction){
+      if(dir_flg){
         pos += 2;	
       }else{
         pos -= 2;
       }
     }
+    
     //Switching rotation's direction if counter is out of range
     if(pos>=MAX_POS || pos<=0){
-      flag_direction = !flag_direction;
+    	dir_flg = !dir_flg;
     }
+    
 /*###################################################################
-					End of Motor Control
+				    	End of Motor Control
 ###################################################################*/
 
-      //Falta pos = pos/2 cuando son whole steps en el entramado.
   }
 
   /*** Don't write any code pass this line, or it will be deleted during code generation. ***/

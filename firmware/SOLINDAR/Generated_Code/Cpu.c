@@ -7,7 +7,7 @@
 **     Version     : Component 01.003, Driver 01.40, CPU db: 3.00.067
 **     Datasheet   : MC9S08QE128RM Rev. 2 6/2007
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-04, 09:28, # CodeGen: 7
+**     Date/Time   : 2019-10-04, 16:46, # CodeGen: 18
 **     Abstract    :
 **         This component "MC9S08QE128_80" contains initialization 
 **         of the CPU and provides basic methods and events for 
@@ -71,10 +71,15 @@
 #include "Inhr2.h"
 #include "Inhr3.h"
 #include "Inhr4.h"
+#include "Trigger.h"
+#include "TI1.h"
+#include "Bit1.h"
+#include "FC161.h"
 #include "PE_Types.h"
 #include "PE_Error.h"
 #include "PE_Const.h"
 #include "IO_Map.h"
+#include "PE_Timer.h"
 #include "Events.h"
 #include "Cpu.h"
 
@@ -82,6 +87,9 @@
 /* Global variables */
 volatile byte CCR_reg;                 /* Current CCR register */
 volatile byte CCR_lock;                /* Nesting level of critical regions */
+
+/*Definition of global shadow variables*/
+byte Shadow_PTH;
 
 
 /*
@@ -211,12 +219,12 @@ void PE_low_level_init(void)
   clrReg8Bits(PTDPE, 0x03U);            
   /* PTDDD: PTDDD1=1,PTDDD0=1 */
   setReg8Bits(PTDDD, 0x03U);            
-  /* PTHD: PTHD7=0,PTHD6=0 */
-  clrReg8Bits(PTHD, 0xC0U);             
-  /* PTHPE: PTHPE7=0,PTHPE6=0 */
-  clrReg8Bits(PTHPE, 0xC0U);            
-  /* PTHDD: PTHDD7=1,PTHDD6=1 */
-  setReg8Bits(PTHDD, 0xC0U);            
+  /* PTHD: PTHD7=0,PTHD6=0,PTHD5=0 */
+  clrReg8Bits(PTHD, 0xE0U);             
+  /* PTHPE: PTHPE7=0,PTHPE6=0,PTHPE5=0,PTHPE4=0 */
+  clrReg8Bits(PTHPE, 0xF0U);            
+  /* PTHDD: PTHDD7=1,PTHDD6=1,PTHDD5=1,PTHDD4=0 */
+  clrSetReg8Bits(PTHDD, 0x10U, 0xE0U);  
   /* PTASE: PTASE7=0,PTASE6=0,PTASE4=0,PTASE3=0,PTASE2=0,PTASE1=0,PTASE0=0 */
   clrReg8Bits(PTASE, 0xDFU);            
   /* PTBSE: PTBSE7=0,PTBSE6=0,PTBSE5=0,PTBSE4=0,PTBSE3=0,PTBSE2=0,PTBSE1=0,PTBSE0=0 */
@@ -259,6 +267,16 @@ void PE_low_level_init(void)
   /* ### BitIO "Inhr3" init code ... */
   /* ### BitIO "Inhr4" init code ... */
   /* ### MultiBitIO "MBit1" init code ... */
+  /* ### BitIO "Trigger" init code ... */
+  Shadow_PTH &= 0xDFU;                 /* Initialize pin shadow variable bit */
+  /* ### TimerInt "TI1" init code ... */
+  TI1_Init();
+  /* ### BitIO "Bit1" init code ... */
+  /* ### Free running 8-bit counter "FC161" init code ... */
+  FC161_Init();
+  /* Common peripheral initialization - ENABLE */
+  /* TPM1SC: CLKSB=0,CLKSA=1 */
+  clrSetReg8Bits(TPM1SC, 0x10U, 0x08U); 
   CCR_lock = (byte)0;
   __EI();                              /* Enable interrupts */
 }
