@@ -76,10 +76,11 @@ void main(void)
    * dir_flg   : direction flag. TRUE for clockwise, FALSE for counterclockwise.
    * trgg_flg  : trigger flag. 
    */
-  unsigned int echo_time, son_dis;
+  unsigned int echo_time, son_dis, lid_vol;
   /*
    * echo_time : echo time. Duration of echo signal in HIGH state.
    * son_dis   : sonar distance. Distance measured by the SONAR.
+   * lid_vol   : lidar voltage. Voltage output of LIDAR.
    */
    
   
@@ -93,7 +94,7 @@ void main(void)
   for (;;){
 
 /*###################################################################
-						Sonar Control
+					            	Sonar Control
 ###################################################################*/   
 	  //Trigger
 	  Trigger_SetVal();	//Set output to HIGH. Start trigger.
@@ -112,7 +113,7 @@ void main(void)
 	  son_dis = echo_time/58;
 	  
 /*###################################################################
-		     		End of Sonar Control
+		     	           	End of Sonar Control
 ###################################################################*/
 /*###################################################################
                           Motor Control
@@ -146,7 +147,31 @@ void main(void)
 /*###################################################################
 				    	End of Motor Control
 ###################################################################*/
+/*###################################################################
+					 	Frame Construction
+###################################################################*/
 
+    //First byte
+    if(STEPS_MODE){
+      //Half steps
+      frame[0] = pos;
+    }else{
+      //Whole steps
+      frame[0] = pos/2;
+    }
+
+    //Second byte
+    frame[1] = 0b10000000 | (son_dis >> 2);
+
+    //Third byte 
+    frame[2] = 0b10000000 | (son_dis << 5) | (lid_vol >> 7);
+
+    //Forth byte
+    frame[3] = 0b10000000 | (lid_vol);
+
+/*###################################################################
+						End of Frame Construction
+###################################################################*/
   }
 
   /*** Don't write any code pass this line, or it will be deleted during code generation. ***/
