@@ -29,6 +29,37 @@ Module "MBit1"     (component MultiBitIO)
                 )].  This method is enabled only if the Direction = _[output]_ or _[input/output]_). Pins are addressed form 
                 zero, where 0 is equaled to LSB.
 
+Module "Trigger"   (component BitIO)
+   - Trigger_SetDir -Sets a pin direction (available only if the direction = _[input/output]_).
+   - Trigger_GetVal -Returns the input/output value. If the direction is [input] then the input value of the pin is read and 
+                returned. If the direction is [output] then the last written value is returned (see <Safe mode> property for 
+                limitations). This method cannot be disabled if direction is [input].
+   - Trigger_PutVal -The specified output value is set. If the direction is [input], the component saves the value to a memory 
+                or a register and this value will be written to the pin after switching to the output mode (using 
+                [SetDir(TRUE)]; see <Safe mode> property for limitations). If the direction is [output], it writes the value to 
+                the pin. (Method is available only if the direction = _[output]_ or _[input/output]_).
+   - Trigger_ClrVal -Clears (set to zero) the output value. It is equivalent to the [PutVal(FALSE)]. This method is available 
+                only if the direction = _[output]_ or _[input/output]_.
+   - Trigger_SetVal -Sets (to one) the output value. It is equivalent to the [PutVal(TRUE)]. This method is available only if 
+                the direction = _[output]_ or _[input/output]_.
+
+Module "TI1"       (component TimerInt)
+   - TI1_Enable -This method enables the component - it starts the timer. Events may be generated (<DisableEvent>/<EnableEvent>)
+                .
+   - TI1_Disable -This method disables the component - it stops the timer. No events will be generated.
+
+Module "Bit1"      (component BitIO)
+   - Bit1_GetVal -Returns the input/output value. If the direction is [input] then the input value of the pin is read and 
+                returned. If the direction is [output] then the last written value is returned (see <Safe mode> property for 
+                limitations). This method cannot be disabled if direction is [input].
+
+Module "FC161"     (component FreeCntr16)
+   - FC161_Reset -This method clears the counter.
+   - FC161_GetTimeUS -This method returns the time (as a 16-bit unsigned integer) in microseconds since the last resetting 
+                after the last reset.
+   - FC161_GetTimeMS -This method returns the time (as a 16-bit unsigned integer) in milliseconds since the last resetting 
+                after the last reset.
+
 Module "Cpu"       (component MC9S08QE128_80)
    - Cpu_EnableInt -Enables maskable interrupts
    - Cpu_DisableInt -Disables maskable interrupts
