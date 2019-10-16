@@ -34,7 +34,6 @@
 #include "PE_Error.h"
 #include "PE_Const.h"
 #include "IO_Map.h"
-#include "PE_Timer.h"
 #include "MBit1.h"
 #include "Inhr1.h"
 #include "Inhr2.h"
@@ -42,8 +41,8 @@
 #include "Inhr4.h"
 #include "Trigger.h"
 #include "TI1.h"
-#include "FC161.h"
-#include "Bit1.h"
+#include "TI2.h"
+#include "Echo.h"
 
 
 void TI1_OnInterrupt(void);
@@ -57,6 +56,38 @@ void TI1_OnInterrupt(void);
 **         when the component is enabled - <Enable> and the events are
 **         enabled - <EnableEvent>). This event is enabled only if a
 **         <interrupt service/event> is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+void TI2_OnInterrupt(void);
+/*
+** ===================================================================
+**     Event       :  TI2_OnInterrupt (module Events)
+**
+**     Component   :  TI2 [TimerInt]
+**     Description :
+**         When a timer interrupt occurs this event is called (only
+**         when the component is enabled - <Enable> and the events are
+**         enabled - <EnableEvent>). This event is enabled only if a
+**         <interrupt service/event> is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+void Echo_OnCapture(void);
+/*
+** ===================================================================
+**     Event       :  Echo_OnCapture (module Events)
+**
+**     Component   :  Echo [Capture]
+**     Description :
+**         This event is called on capturing of Timer/Counter actual
+**         value (only when the component is enabled - <Enable> and the
+**         events are enabled - <EnableEvent>.This event is available
+**         only if a <interrupt service/event> is enabled.
 **     Parameters  : None
 **     Returns     : Nothing
 ** ===================================================================

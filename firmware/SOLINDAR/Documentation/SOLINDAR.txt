@@ -48,17 +48,15 @@ Module "TI1"       (component TimerInt)
                 .
    - TI1_Disable -This method disables the component - it stops the timer. No events will be generated.
 
-Module "Bit1"      (component BitIO)
-   - Bit1_GetVal -Returns the input/output value. If the direction is [input] then the input value of the pin is read and 
-                returned. If the direction is [output] then the last written value is returned (see <Safe mode> property for 
-                limitations). This method cannot be disabled if direction is [input].
+Module "TI2"       (component TimerInt)
 
-Module "FC161"     (component FreeCntr16)
-   - FC161_Reset -This method clears the counter.
-   - FC161_GetTimeUS -This method returns the time (as a 16-bit unsigned integer) in microseconds since the last resetting 
-                after the last reset.
-   - FC161_GetTimeMS -This method returns the time (as a 16-bit unsigned integer) in milliseconds since the last resetting 
-                after the last reset.
+Module "Echo"      (component Capture)
+   - Echo_Enable -This method enables the component - it starts the capture. Events may be generated 
+                (<DisableEvent>/<EnableEvent>).
+   - Echo_Reset -This method resets the counter register (see implementation note in <General Info>).
+   - Echo_GetCaptureValue -This method gets the last value captured by enabled timer (see implementation note in <General Info>)
+                . The method does not return valid value after initialization or after <Reset> until new capture event (even if 
+                the returned Error code is ERR_OK).
 
 Module "Cpu"       (component MC9S08QE128_80)
    - Cpu_EnableInt -Enables maskable interrupts

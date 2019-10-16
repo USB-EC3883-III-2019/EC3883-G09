@@ -6,7 +6,7 @@
 **     Component   : BitIO
 **     Version     : Component 02.086, Driver 03.27, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-04, 09:28, # CodeGen: 7
+**     Date/Time   : 2019-10-09, 11:24, # CodeGen: 19
 **     Abstract    :
 **         This component "BitIO" implements an one-bit input/output.
 **         It uses one bit/pin of a port.
@@ -18,20 +18,20 @@
 **             ----------------------------------------------------
 **                Number (on package)  |    Name
 **             ----------------------------------------------------
-**                       4             |  PTH6_SCL2
+**                       26            |  PTD7_KBI2P7
 **             ----------------------------------------------------
 **
-**         Port name                   : PTH
+**         Port name                   : PTD
 **
-**         Bit number (in port)        : 6
-**         Bit mask of the port        : $0040
+**         Bit number (in port)        : 7
+**         Bit mask of the port        : $0080
 **
 **         Initial direction           : Output (direction cannot be changed)
 **         Initial output value        : 0
 **         Initial pull option         : off
 **
-**         Port data register          : PTHD      [$001E]
-**         Port control register       : PTHDD     [$001F]
+**         Port data register          : PTDD      [$0006]
+**         Port control register       : PTDDD     [$0007]
 **
 **         Optimization for            : speed
 **     Contents    :
@@ -138,9 +138,9 @@ bool Inhr4_GetVal(void)
 void Inhr4_PutVal(bool Val)
 {
   if (Val) {
-    setReg8Bits(PTHD, 0x40U);          /* PTHD6=0x01U */
+    setReg8Bits(PTDD, 0x80U);          /* PTDD7=0x01U */
   } else { /* !Val */
-    clrReg8Bits(PTHD, 0x40U);          /* PTHD6=0x00U */
+    clrReg8Bits(PTDD, 0x80U);          /* PTDD7=0x00U */
   } /* !Val */
 }
 

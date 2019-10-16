@@ -7,7 +7,7 @@
 **     Version     : Component 01.003, Driver 01.40, CPU db: 3.00.067
 **     Datasheet   : MC9S08QE128RM Rev. 2 6/2007
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-04, 16:46, # CodeGen: 18
+**     Date/Time   : 2019-10-12, 15:39, # CodeGen: 23
 **     Abstract    :
 **         This component "MC9S08QE128_80" contains initialization 
 **         of the CPU and provides basic methods and events for 
@@ -73,13 +73,12 @@
 #include "Inhr4.h"
 #include "Trigger.h"
 #include "TI1.h"
-#include "Bit1.h"
-#include "FC161.h"
+#include "TI2.h"
+#include "Echo.h"
 #include "PE_Types.h"
 #include "PE_Error.h"
 #include "PE_Const.h"
 #include "IO_Map.h"
-#include "PE_Timer.h"
 #include "Events.h"
 #include "Cpu.h"
 
@@ -89,7 +88,7 @@ volatile byte CCR_reg;                 /* Current CCR register */
 volatile byte CCR_lock;                /* Nesting level of critical regions */
 
 /*Definition of global shadow variables*/
-byte Shadow_PTH;
+byte Shadow_PTA;
 
 
 /*
@@ -162,6 +161,8 @@ void _EntryPoint(void)
   /* Common initialization of the write once registers */
   /* SOPT1: COPE=0,COPT=1,STOPE=0,??=0,??=0,RSTOPE=0,BKGDPE=1,RSTPE=0 */
   setReg8(SOPT1, 0x42U);                
+  /* SOPT2: COPCLKS=0,??=0,??=0,??=0,SPI1PS=0,ACIC2=0,IIC1PS=0,ACIC1=0 */
+  setReg8(SOPT2, 0x00U);                
   /* SPMSC1: LVDF=0,LVDACK=0,LVDIE=0,LVDRE=1,LVDSE=1,LVDE=1,??=0,BGBE=0 */
   setReg8(SPMSC1, 0x1CU);               
   /* SPMSC2: LPR=0,LPRS=0,LPWUI=0,??=0,PPDF=0,PPDACK=0,PPDE=1,PPDC=0 */
@@ -177,13 +178,13 @@ void _EntryPoint(void)
   /*lint -restore Enable MISRA rule (11.3) checking. */
   /* ICSC1: CLKS=0,RDIV=0,IREFS=1,IRCLKEN=1,IREFSTEN=0 */
   setReg8(ICSC1, 0x06U);               /* Initialization of the ICS control register 1 */ 
-  /* ICSC2: BDIV=1,RANGE=0,HGO=0,LP=0,EREFS=0,ERCLKEN=0,EREFSTEN=0 */
-  setReg8(ICSC2, 0x40U);               /* Initialization of the ICS control register 2 */ 
+  /* ICSC2: BDIV=0,RANGE=0,HGO=0,LP=0,EREFS=0,ERCLKEN=0,EREFSTEN=0 */
+  setReg8(ICSC2, 0x00U);               /* Initialization of the ICS control register 2 */ 
   while(ICSSC_IREFST == 0U) {          /* Wait until the source of reference clock is internal clock */
   }
-  /* ICSSC: DRST_DRS=0,DMX32=0 */
-  clrReg8Bits(ICSSC, 0xE0U);           /* Initialization of the ICS status and control */ 
-  while((ICSSC & 0xC0U) != 0x00U) {    /* Wait until the FLL switches to Low range DCO mode */
+  /* ICSSC: DRST_DRS=2,DMX32=0 */
+  clrSetReg8Bits(ICSSC, 0x60U, 0x80U); /* Initialization of the ICS status and control */ 
+  while((ICSSC & 0xC0U) != 0x80U) {    /* Wait until the FLL switches to High range DCO mode */
   }
 
   /*** End of PE initialization code after reset ***/
@@ -213,18 +214,18 @@ void PE_low_level_init(void)
   /* SCGC2: DBG=1,FLS=1,IRQ=1,KBI=1,ACMP=1,RTC=1,SPI2=1,SPI1=1 */
   setReg8(SCGC2, 0xFFU);                
   /* Common initialization of the CPU registers */
-  /* PTDD: PTDD1=0,PTDD0=0 */
-  clrReg8Bits(PTDD, 0x03U);             
-  /* PTDPE: PTDPE1=0,PTDPE0=0 */
-  clrReg8Bits(PTDPE, 0x03U);            
-  /* PTDDD: PTDDD1=1,PTDDD0=1 */
-  setReg8Bits(PTDDD, 0x03U);            
-  /* PTHD: PTHD7=0,PTHD6=0,PTHD5=0 */
-  clrReg8Bits(PTHD, 0xE0U);             
-  /* PTHPE: PTHPE7=0,PTHPE6=0,PTHPE5=0,PTHPE4=0 */
-  clrReg8Bits(PTHPE, 0xF0U);            
-  /* PTHDD: PTHDD7=1,PTHDD6=1,PTHDD5=1,PTHDD4=0 */
-  clrSetReg8Bits(PTHDD, 0x10U, 0xE0U);  
+  /* PTDD: PTDD7=0,PTDD6=0,PTDD5=0,PTDD4=0 */
+  clrReg8Bits(PTDD, 0xF0U);             
+  /* PTDPE: PTDPE7=0,PTDPE6=0,PTDPE5=0,PTDPE4=0 */
+  clrReg8Bits(PTDPE, 0xF0U);            
+  /* PTDDD: PTDDD7=1,PTDDD6=1,PTDDD5=1,PTDDD4=1 */
+  setReg8Bits(PTDDD, 0xF0U);            
+  /* PTAD: PTAD6=0 */
+  clrReg8Bits(PTAD, 0x40U);             
+  /* PTAPE: PTAPE7=0,PTAPE6=0 */
+  clrReg8Bits(PTAPE, 0xC0U);            
+  /* PTADD: PTADD7=0,PTADD6=1 */
+  clrSetReg8Bits(PTADD, 0x80U, 0x40U);  
   /* PTASE: PTASE7=0,PTASE6=0,PTASE4=0,PTASE3=0,PTASE2=0,PTASE1=0,PTASE0=0 */
   clrReg8Bits(PTASE, 0xDFU);            
   /* PTBSE: PTBSE7=0,PTBSE6=0,PTBSE5=0,PTBSE4=0,PTBSE3=0,PTBSE2=0,PTBSE1=0,PTBSE0=0 */
@@ -268,15 +269,13 @@ void PE_low_level_init(void)
   /* ### BitIO "Inhr4" init code ... */
   /* ### MultiBitIO "MBit1" init code ... */
   /* ### BitIO "Trigger" init code ... */
-  Shadow_PTH &= 0xDFU;                 /* Initialize pin shadow variable bit */
+  Shadow_PTA &= 0xBFU;                 /* Initialize pin shadow variable bit */
   /* ### TimerInt "TI1" init code ... */
   TI1_Init();
-  /* ### BitIO "Bit1" init code ... */
-  /* ### Free running 8-bit counter "FC161" init code ... */
-  FC161_Init();
-  /* Common peripheral initialization - ENABLE */
-  /* TPM1SC: CLKSB=0,CLKSA=1 */
-  clrSetReg8Bits(TPM1SC, 0x10U, 0x08U); 
+  /* ### TimerInt "TI2" init code ... */
+  TI2_Init();
+  /* ### Timer capture encapsulation "Echo" init code ... */
+  Echo_Init();
   CCR_lock = (byte)0;
   __EI();                              /* Enable interrupts */
 }
