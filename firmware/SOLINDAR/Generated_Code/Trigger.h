@@ -6,7 +6,7 @@
 **     Component   : BitIO
 **     Version     : Component 02.086, Driver 03.27, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-04, 10:16, # CodeGen: 9
+**     Date/Time   : 2019-10-12, 15:39, # CodeGen: 23
 **     Abstract    :
 **         This component "BitIO" implements an one-bit input/output.
 **         It uses one bit/pin of a port.
@@ -17,21 +17,21 @@
 **             ----------------------------------------------------
 **                Number (on package)  |    Name
 **             ----------------------------------------------------
-**                       5             |  PTH5
+**                       48            |  PTA6_TPM1CH2_ADP8
 **             ----------------------------------------------------
 **
-**         Port name                   : PTH
+**         Port name                   : PTA
 **
-**         Bit number (in port)        : 5
-**         Bit mask of the port        : $0020
+**         Bit number (in port)        : 6
+**         Bit mask of the port        : $0040
 **
 **         Initial direction           : Output (direction can be changed)
 **         Safe mode                   : yes
 **         Initial output value        : 0
 **         Initial pull option         : off
 **
-**         Port data register          : PTHD      [$001E]
-**         Port control register       : PTHDD     [$001F]
+**         Port data register          : PTAD      [$0000]
+**         Port control register       : PTADD     [$0001]
 **
 **         Optimization for            : speed
 **     Contents    :
@@ -116,7 +116,7 @@
 ** ===================================================================
 */
 #define Trigger_GetVal() ( \
-    (bool)((getReg8(PTHD) & 0x20U))    /* Return port data */ \
+    (bool)((getReg8(PTAD) & 0x40U))    /* Return port data */ \
   )
 
 /*
@@ -158,8 +158,8 @@ void Trigger_PutVal(bool Val);
 ** ===================================================================
 */
 #define Trigger_ClrVal() ( \
-    (void)clrReg8Bits(PTHD, 0x20U)     /* PTHD5=0x00U */, \
-    (Shadow_PTH &= 0xDFU)              /* Set appropriate bit in shadow variable */ \
+    (void)clrReg8Bits(PTAD, 0x40U)     /* PTAD6=0x00U */, \
+    (Shadow_PTA &= 0xBFU)              /* Set appropriate bit in shadow variable */ \
   )
 
 /*
@@ -179,8 +179,8 @@ void Trigger_PutVal(bool Val);
 ** ===================================================================
 */
 #define Trigger_SetVal() ( \
-    (void)setReg8Bits(PTHD, 0x20U)     /* PTHD5=0x01U */, \
-    (Shadow_PTH |= 0x20U)              /* Set appropriate bit in shadow variable */ \
+    (void)setReg8Bits(PTAD, 0x40U)     /* PTAD6=0x01U */, \
+    (Shadow_PTA |= 0x40U)              /* Set appropriate bit in shadow variable */ \
   )
 
 /*

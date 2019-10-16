@@ -6,7 +6,7 @@
 **     Component   : MultiBitIO
 **     Version     : Component 01.000, Driver 01.01, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-04, 09:28, # CodeGen: 7
+**     Date/Time   : 2019-10-09, 11:24, # CodeGen: 19
 **     Abstract    :
 **         This bean "MultiBitIO" implements a multi-bit input/output.
 **         It assembles alone pins into 1-8bit software port
@@ -15,10 +15,10 @@
 **             ----------------------------------------------------
 **                   Bit     |   Pin   |   Name
 **             ----------------------------------------------------
-**                    0      |    1    |   PTD1_KBI2P1_MOSI2
-**                    1      |    2    |   PTD0_KBI2P0_SPSCK2
-**                    2      |    3    |   PTH7_SDA2
-**                    3      |    4    |   PTH6_SCL2
+**                    0      |    56   |   PTD4_KBI2P4
+**                    1      |    28   |   PTD5_KBI2P5
+**                    2      |    27   |   PTD6_KBI2P6
+**                    3      |    26   |   PTD7_KBI2P7
 **             ----------------------------------------------------
 **
 **         Number of bits/pins         : 4

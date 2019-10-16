@@ -32,6 +32,7 @@
 #include "Events.h"
 
 extern trgg_flg;
+extern char aux_flag;
 /* User includes (#include below this line is not maintained by Processor Expert) */
 
 /*
@@ -54,7 +55,48 @@ void TI1_OnInterrupt(void)
 	
 	TI1_Disable();		//Disable interrupt service.
 	Trigger_ClrVal();	//Set output LOW. End of trigger.
-	trgg_flg = FALSE;	//End of interrupt.
+	trgg_flg = !trgg_flg;	//End of interrupt.
+}
+
+/*
+** ===================================================================
+**     Event       :  TI2_OnInterrupt (module Events)
+**
+**     Component   :  TI2 [TimerInt]
+**     Description :
+**         When a timer interrupt occurs this event is called (only
+**         when the component is enabled - <Enable> and the events are
+**         enabled - <EnableEvent>). This event is enabled only if a
+**         <interrupt service/event> is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void TI2_OnInterrupt(void)
+{
+  /* Write your code here ... */
+	aux_flag = 1;
+}
+
+/*
+** ===================================================================
+**     Event       :  Echo_OnCapture (module Events)
+**
+**     Component   :  Echo [Capture]
+**     Description :
+**         This event is called on capturing of Timer/Counter actual
+**         value (only when the component is enabled - <Enable> and the
+**         events are enabled - <EnableEvent>.This event is available
+**         only if a <interrupt service/event> is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void Echo_OnCapture(void)
+{
+  /* Write your code here ... */
+	//Echo_GetCaptureValue();
+	Echo_Reset();
 }
 
 /* END Events */

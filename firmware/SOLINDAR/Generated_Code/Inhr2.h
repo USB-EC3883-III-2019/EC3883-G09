@@ -6,7 +6,7 @@
 **     Component   : BitIO
 **     Version     : Component 02.086, Driver 03.27, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-04, 09:28, # CodeGen: 7
+**     Date/Time   : 2019-10-09, 11:24, # CodeGen: 19
 **     Abstract    :
 **         This component "BitIO" implements an one-bit input/output.
 **         It uses one bit/pin of a port.
@@ -18,13 +18,13 @@
 **             ----------------------------------------------------
 **                Number (on package)  |    Name
 **             ----------------------------------------------------
-**                       2             |  PTD0_KBI2P0_SPSCK2
+**                       28            |  PTD5_KBI2P5
 **             ----------------------------------------------------
 **
 **         Port name                   : PTD
 **
-**         Bit number (in port)        : 0
-**         Bit mask of the port        : $0001
+**         Bit number (in port)        : 5
+**         Bit mask of the port        : $0020
 **
 **         Initial direction           : Output (direction cannot be changed)
 **         Initial output value        : 0
@@ -119,7 +119,7 @@
 ** ===================================================================
 */
 #define Inhr2_GetVal() ( \
-    (bool)((getReg8(PTDD) & 0x01U))    /* Return port data */ \
+    (bool)((getReg8(PTDD) & 0x20U))    /* Return port data */ \
   )
 
 /*
@@ -147,7 +147,7 @@ void Inhr2_PutVal(bool Val);
 ** ===================================================================
 */
 #define Inhr2_ClrVal() ( \
-    (void)clrReg8Bits(PTDD, 0x01U)     /* PTDD0=0x00U */ \
+    (void)clrReg8Bits(PTDD, 0x20U)     /* PTDD5=0x00U */ \
   )
 
 /*
@@ -160,7 +160,7 @@ void Inhr2_PutVal(bool Val);
 ** ===================================================================
 */
 #define Inhr2_SetVal() ( \
-    (void)setReg8Bits(PTDD, 0x01U)     /* PTDD0=0x01U */ \
+    (void)setReg8Bits(PTDD, 0x20U)     /* PTDD5=0x01U */ \
   )
 
 /*
@@ -173,7 +173,7 @@ void Inhr2_PutVal(bool Val);
 ** ===================================================================
 */
 #define Inhr2_NegVal() ( \
-    (void)invertReg8Bits(PTDD, 0x01U)  /* PTDD0=invert */ \
+    (void)invertReg8Bits(PTDD, 0x20U)  /* PTDD5=invert */ \
   )
 
 /*

@@ -37,8 +37,8 @@
 #include "Inhr4.h"
 #include "Trigger.h"
 #include "TI1.h"
-#include "FC161.h"
-#include "Bit1.h"
+#include "TI2.h"
+#include "Echo.h"
 /* Include shared modules, which are used for whole project */
 #include "PE_Types.h"
 #include "PE_Error.h"
@@ -60,6 +60,8 @@ const char steps[] = { 10,     //1010
                         6,     //0110
                         2,     //0010
 };
+char aux_flag = 0;
+
 
 
 void main(void)
@@ -83,7 +85,7 @@ void main(void)
    * lid_vol   : lidar voltage. Voltage output of LIDAR.
    */
    
-  
+		  
   /*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
   PE_low_level_init();
   /*** End of Processor Expert internal initialization.                    ***/
@@ -92,10 +94,24 @@ void main(void)
   /* For example: for(;;) { } */
  
   for (;;){
+	  
+	  
 
 /*###################################################################
-					            	Sonar Control
-###################################################################*/   
+						Lidar Control
+###################################################################*/
+	  
+	  
+	  
+/*###################################################################
+				    	End of Lidar Control
+###################################################################*/
+/*###################################################################
+							Sonar Control
+###################################################################*/
+
+    //So far, it only takes one sample.
+
 	  //Trigger
 	  Trigger_SetVal();	//Set output to HIGH. Start trigger.
 	  TI1_Enable();		//Enable interrupt service.
@@ -104,21 +120,19 @@ void main(void)
 	  //Ultrasonic burst
 	  
 	  //Echo
-	  while(!Bit1_GetVal()){}	//Wait for the echo to start.
-	  FC161_Reset();			//Reset timer.
-	  while(Bit1_GetVal()){}	//Wait for the echo to finish.
-	  FC161_GetTimeUS(&echo_time);	//Get the time of flight.
 	  
 	  //Calculate Distance
 	  son_dis = echo_time/58;
 	  
 /*###################################################################
-		     	           	End of Sonar Control
+		     	       End of Sonar Control
 ###################################################################*/
 /*###################################################################
                           Motor Control
 ###################################################################*/
-
+/*
+	  
+	  if(aux_flag){ //for stand-alone simulation purpose
     //Applying signal
     MBit1_PutVal(steps[pos%8]);
     
@@ -143,14 +157,16 @@ void main(void)
     if(pos>=MAX_POS || pos<=0){
     	dir_flg = !dir_flg;
     }
+	aux_flag = 0;	//for stand-alone simulation purpose
+	  }
     
 /*###################################################################
 				    	End of Motor Control
 ###################################################################*/
 /*###################################################################
-					 	Frame Construction
+				     	 	Frame Construction
 ###################################################################*/
-
+/*
     //First byte
     if(STEPS_MODE){
       //Half steps
@@ -167,7 +183,7 @@ void main(void)
     frame[2] = 0b10000000 | (son_dis << 5) | (lid_vol >> 7);
 
     //Forth byte
-    frame[3] = 0b10000000 | (lid_vol);
+    frame[3] = 0b10000000 | lid_vol;
 
 /*###################################################################
 						End of Frame Construction
