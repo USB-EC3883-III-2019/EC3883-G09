@@ -6,7 +6,7 @@
 **     Component   : Capture
 **     Version     : Component 02.223, Driver 01.30, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-14, 12:01, # CodeGen: 24
+**     Date/Time   : 2019-10-21, 17:33, # CodeGen: 0
 **     Abstract    :
 **         This component "Capture" simply implements the capture function
 **         of timer. The counter counts the same way as in free run mode. On
@@ -21,15 +21,15 @@
 **             Counter shared          : No
 **
 **         High speed mode
-**             Prescaler               : divide-by-16
+**             Prescaler               : divide-by-1
 **           Maximal time for capture register
-**             Xtal ticks              : 1365
-**             microseconds            : 41667
-**             milliseconds            : 42
-**             seconds (real)          : 0.041666666667
-**             Hz                      : 24
+**             Xtal ticks              : 131072
+**             microseconds            : 4000000
+**             milliseconds            : 4000
+**             seconds                 : 4
+**             seconds (real)          : 4.0
 **           One tick of timer is
-**             microseconds            : 0.635783
+**             microseconds            : 61.035156
 **
 **         Initialization:
 **              Timer                  : Enabled
@@ -134,8 +134,8 @@ byte Echo_Enable(void)
 {
   /* TPM2C2SC: CH2F=0,CH2IE=1,MS2B=0,MS2A=0,ELS2B=1,ELS2A=1,??=0,??=0 */
   setReg8(TPM2C2SC, 0x4CU);            /* Enable both interrupt and capture function */ 
-  /* TPM2SC: CLKSB=0,CLKSA=1 */
-  clrSetReg8Bits(TPM2SC, 0x10U, 0x08U); /* Run counter */ 
+  /* TPM2SC: CLKSB=1,CLKSA=0 */
+  clrSetReg8Bits(TPM2SC, 0x08U, 0x10U); /* Run counter */ 
   return ERR_OK;                       /* OK */
 }
 
@@ -165,7 +165,7 @@ byte Echo_Reset(word *Value)
 **     Description :
 **         This method gets the last value captured by enabled timer.
 **         Note: one tick of timer is
-**               0.635783 us in high speed mode
+**               61.035156 us in high speed mode
 **     Parameters  :
 **         NAME            - DESCRIPTION
 **       * Value           - A pointer to the content of the
@@ -204,12 +204,12 @@ void Echo_Init(void)
   setReg8(TPM2CNTH, 0x00U);            /* Reset counter */ 
   /* TPM2C2V: BIT15=0,BIT14=0,BIT13=0,BIT12=0,BIT11=0,BIT10=0,BIT9=0,BIT8=0,BIT7=0,BIT6=0,BIT5=0,BIT4=0,BIT3=0,BIT2=0,BIT1=0,BIT0=0 */
   setReg16(TPM2C2V, 0x00U);            /* Clear capture register */ 
-  /* TPM2SC: PS2=1,PS1=0,PS0=0 */
-  clrSetReg8Bits(TPM2SC, 0x03U, 0x04U); /* Set prescaler register */ 
+  /* TPM2SC: PS2=0,PS1=0,PS0=0 */
+  clrReg8Bits(TPM2SC, 0x07U);          /* Set prescaler register */ 
   /* TPM2C2SC: CH2F=0,CH2IE=1,MS2B=0,MS2A=0,ELS2B=1,ELS2A=1,??=0,??=0 */
   setReg8(TPM2C2SC, 0x4CU);            /* Enable both interrupt and capture function */ 
-  /* TPM2SC: CLKSB=0,CLKSA=1 */
-  clrSetReg8Bits(TPM2SC, 0x10U, 0x08U); /* Run counter */ 
+  /* TPM2SC: CLKSB=1,CLKSA=0 */
+  clrSetReg8Bits(TPM2SC, 0x08U, 0x10U); /* Run counter */ 
 }
 
 

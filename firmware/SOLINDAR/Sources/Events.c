@@ -31,9 +31,17 @@
 #include "Cpu.h"
 #include "Events.h"
 
-extern trgg_flg;
-extern char aux_flag;
 /* User includes (#include below this line is not maintained by Processor Expert) */
+extern bool echo_flg, trgg_flg, cap_flg_ris, motor_flg;
+extern unsigned int son_dis, echo_time, count;
+/*	Variables explanation:
+**  echo_flg   	: 	auxiliary flag. Wait for interrupt to occur.
+**	trgg_flg	:	trigger flag. TRUE until the interrupt occurs, FALSE after the interrupt.
+**	cap_flg_ris	:	capture flag rising. TRUE if rising edge, FLASE if falling edge.
+**	motor_flg	:	motor flag. TRUE if motor is to move. FALSE otherwise.
+**	son_dis		:	sonar distance. Sonar distance measured in centimetres.
+**	echo_time	:	echo time. Measures the duration of the echo signal. 
+*/
 
 /*
 ** ===================================================================
@@ -53,9 +61,9 @@ void TI1_OnInterrupt(void)
 {
   /* Write your code here ... */
 	
-	TI1_Disable();		//Disable interrupt service.
-	Trigger_ClrVal();	//Set output LOW. End of trigger.
-	trgg_flg = !trgg_flg;	//End of interrupt.
+	TI1_Disable();			//Disable interrupt service.
+	Trigger_ClrVal();		//Set output LOW. End of trigger.
+	trgg_flg = !trgg_flg;	//Brake while loop.
 }
 
 /*
@@ -75,7 +83,7 @@ void TI1_OnInterrupt(void)
 void TI2_OnInterrupt(void)
 {
   /* Write your code here ... */
-	aux_flag = 1;
+	motor_flg = FALSE;
 }
 
 /*
@@ -95,9 +103,31 @@ void TI2_OnInterrupt(void)
 void Echo_OnCapture(void)
 {
   /* Write your code here ... */
-	//Echo_GetCaptureValue();
-	Echo_Reset();
+	Echo_GetCaptureValue(&echo_time);	//Measure the time the signal echo was HIGH.
+	count++;
+	echo_flg = !echo_flg;	//Brake while loop.
+	Echo_Reset();			//Reset timer.
 }
+
+/*
+** ===================================================================
+**     Event       :  Lidar_OnEnd (module Events)
+**
+**     Component   :  Lidar [ADC]
+**     Description :
+**         This event is called after the measurement (which consists
+**         of <1 or more conversions>) is/are finished.
+**         The event is available only when the <Interrupt
+**         service/event> property is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void Lidar_OnEnd(void)
+{
+  /* Write your code here ... */
+}
+
 
 /* END Events */
 
