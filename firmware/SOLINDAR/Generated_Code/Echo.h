@@ -6,7 +6,7 @@
 **     Component   : Capture
 **     Version     : Component 02.223, Driver 01.30, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-14, 12:01, # CodeGen: 24
+**     Date/Time   : 2019-10-21, 17:33, # CodeGen: 0
 **     Abstract    :
 **         This component "Capture" simply implements the capture function
 **         of timer. The counter counts the same way as in free run mode. On
@@ -21,15 +21,15 @@
 **             Counter shared          : No
 **
 **         High speed mode
-**             Prescaler               : divide-by-16
+**             Prescaler               : divide-by-1
 **           Maximal time for capture register
-**             Xtal ticks              : 1365
-**             microseconds            : 41667
-**             milliseconds            : 42
-**             seconds (real)          : 0.041666666667
-**             Hz                      : 24
+**             Xtal ticks              : 131072
+**             microseconds            : 4000000
+**             milliseconds            : 4000
+**             seconds                 : 4
+**             seconds (real)          : 4.0
 **           One tick of timer is
-**             microseconds            : 0.635783
+**             microseconds            : 61.035156
 **
 **         Initialization:
 **              Timer                  : Enabled
@@ -122,11 +122,11 @@
 #include "Cpu.h"
 
 /* PUBLISHED CONSTANTS */
-#define Echo_PRESCALER_VALUE           0x10U /* Prescaler value of the timer in high speed mode */
-#define Echo_COUNTER_INPUT_CLOCK_HZ    0x00180000LU /* Initial counter input clock frequency [Hz] */
+#define Echo_PRESCALER_VALUE           0x01U /* Prescaler value of the timer in high speed mode */
+#define Echo_COUNTER_INPUT_CLOCK_HZ    0x4000LU /* Initial counter input clock frequency [Hz] */
 #define Echo_TIMER_INPUT_CLOCK         0x01800000LU /* Deprecated, Initial timer input clock frequency [Hz] */
-#define Echo_PRESCALER_VALUE_HIGH      0x10U /* Prescaler value of the timer in high speed mode */
-#define Echo_COUNTER_INPUT_CLOCK_HZ_HIGH 0x00180000LU /* Counter input clock frequency in high speed mode [Hz] */
+#define Echo_PRESCALER_VALUE_HIGH      0x01U /* Prescaler value of the timer in high speed mode */
+#define Echo_COUNTER_INPUT_CLOCK_HZ_HIGH 0x4000LU /* Counter input clock frequency in high speed mode [Hz] */
 #define Echo_TIMER_INPUT_CLOCK_HIGH    0x01800000LU /* Deprecated, Timer input clock frequency in high speed mode[Hz] */
 
 #ifndef __BWUserType_Echo_TCapturedValue
@@ -179,7 +179,7 @@ byte Echo_Enable(void);
 **     Description :
 **         This method gets the last value captured by enabled timer.
 **         Note: one tick of timer is
-**               0.635783 us in high speed mode
+**               61.035156 us in high speed mode
 **     Parameters  :
 **         NAME            - DESCRIPTION
 **       * Value           - A pointer to the content of the

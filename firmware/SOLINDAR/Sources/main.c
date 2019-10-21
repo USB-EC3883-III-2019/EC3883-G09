@@ -39,6 +39,8 @@
 #include "TI1.h"
 #include "TI2.h"
 #include "Echo.h"
+#include "Lidar.h"
+#include "AS1.h"
 /* Include shared modules, which are used for whole project */
 #include "PE_Types.h"
 #include "PE_Error.h"
@@ -60,9 +62,19 @@ const char steps[] = { 10,     //1010
                         6,     //0110
                         2,     //0010
 };
-char aux_flag = 0;
+bool echo_flg = TRUE, trgg_flg = TRUE, cap_flg_ris = TRUE, motor_flg = TRUE;
+unsigned int son_dis = 0, echo_time, count = 1;	
+word ptr;
 
-
+/*  Variables explanation:
+**  echo_flg    :	auxiliary flag. Wait for interrupt to occur.
+**	trgg_flg   	:	trigger flag. TRUE until the interrupt occurs, FALSE after the interrupt.
+**	cap_flg_ris	:	capture flag rising. TRUE if rising edge, FLASE if falling edge.
+**	motor_flg	:	motor flag. TRUE if motor is to move. FALSE otherwise.
+**	son_dis		:	sonar distance. Sonar distance measured in centimetres.
+**	echo_time	:	echo time. Measures the duration of the echo signal. 
+**	ptr			:	pointer. Pointer used for AsyncroSerial function
+*/
 
 void main(void)
 {
@@ -73,15 +85,12 @@ void main(void)
    * pos       : position. Motor's position.
    * frame     : frame for serial communication.
    */
-  bool dir_flg = TRUE, trgg_flg = TRUE;
+  bool dir_flg = TRUE;
   /*
    * dir_flg   : direction flag. TRUE for clockwise, FALSE for counterclockwise.
-   * trgg_flg  : trigger flag. 
    */
-  unsigned int echo_time, son_dis, lid_vol;
+  unsigned int lid_vol;
   /*
-   * echo_time : echo time. Duration of echo signal in HIGH state.
-   * son_dis   : sonar distance. Distance measured by the SONAR.
    * lid_vol   : lidar voltage. Voltage output of LIDAR.
    */
    
@@ -92,16 +101,16 @@ void main(void)
 
   /* Write your code here */
   /* For example: for(;;) { } */
- 
+
+  TI1_Disable();		//Start the program with interrupt off
   for (;;){
 	  
-	  
-
 /*###################################################################
 						Lidar Control
 ###################################################################*/
 	  
-	  
+	  Lidar_Measure(TRUE);
+	  Lidar_GetValue(&lid_vol);	  
 	  
 /*###################################################################
 				    	End of Lidar Control
@@ -110,19 +119,22 @@ void main(void)
 							Sonar Control
 ###################################################################*/
 
-    //So far, it only takes one sample.
+      //So far, it only takes one sample.
 
-	  //Trigger
-	  Trigger_SetVal();	//Set output to HIGH. Start trigger.
-	  TI1_Enable();		//Enable interrupt service.
-	  while(trgg_flg){}	//Wait for interrupt.
+  	  //Trigger
+  	  Trigger_SetVal();	//Set output to HIGH. Start trigger.
+  	  TI1_Enable();		//Enable interrupt service.
+  	  while(trgg_flg);	//Wait for interrupt.
+  	  trgg_flg = !trgg_flg;
+
+  	  //Ultrasonic burst
 	  
-	  //Ultrasonic burst
-	  
-	  //Echo
-	  
-	  //Calculate Distance
-	  son_dis = echo_time/58;
+  	  //Echo
+	  while(echo_flg){}	//Wait for interrupt.
+	  echo_flg = !echo_flg;	//Restoring the flag
+	  if (count%2){
+		  son_dis = echo_time/58;
+	  }
 	  
 /*###################################################################
 		     	       End of Sonar Control
@@ -130,35 +142,34 @@ void main(void)
 /*###################################################################
                           Motor Control
 ###################################################################*/
-/*
 	  
-	  if(aux_flag){ //for stand-alone simulation purpose
     //Applying signal
     MBit1_PutVal(steps[pos%8]);
     
     //Signal for the next step
     if(STEPS_MODE){
     	//half steps
-      if(dir_flg){
-        pos++;	
-      }else{
-        pos--;
-      }
+    	if(dir_flg){
+    		pos++;	
+    	}else{
+    		pos--;
+    	}
     }else{
-        //whole steps
-      if(dir_flg){
-        pos += 2;	
-      }else{
-        pos -= 2;
-      }
+    	//whole steps
+    	if(dir_flg){
+    		pos += 2;	
+    	}else{
+    		pos -= 2;
+    	}
     }
     
     //Switching rotation's direction if counter is out of range
     if(pos>=MAX_POS || pos<=0){
     	dir_flg = !dir_flg;
     }
-	aux_flag = 0;	//for stand-alone simulation purpose
-	  }
+    
+    while(motor_flg){}
+  	motor_flg = TRUE;	  
     
 /*###################################################################
 				    	End of Motor Control
@@ -166,7 +177,7 @@ void main(void)
 /*###################################################################
 				     	 	Frame Construction
 ###################################################################*/
-/*
+
     //First byte
     if(STEPS_MODE){
       //Half steps
@@ -180,14 +191,20 @@ void main(void)
     frame[1] = 0b10000000 | (son_dis >> 2);
 
     //Third byte 
-    frame[2] = 0b10000000 | (son_dis << 5) | (lid_vol >> 7);
+    frame[2] = 0b10000000 | (son_dis << 6) | (lid_vol >> 7);
 
-    //Forth byte
+    //Fourth byte
     frame[3] = 0b10000000 | lid_vol;
 
 /*###################################################################
 						End of Frame Construction
 ###################################################################*/
+/*###################################################################
+			Serial Communication
+###################################################################*/    
+  
+    AS1_SendBlock(frame,sizeof(frame),&ptr);
+  
   }
 
   /*** Don't write any code pass this line, or it will be deleted during code generation. ***/

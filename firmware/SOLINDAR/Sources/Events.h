@@ -43,6 +43,8 @@
 #include "TI1.h"
 #include "TI2.h"
 #include "Echo.h"
+#include "Lidar.h"
+#include "AS1.h"
 
 
 void TI1_OnInterrupt(void);
@@ -88,6 +90,22 @@ void Echo_OnCapture(void);
 **         value (only when the component is enabled - <Enable> and the
 **         events are enabled - <EnableEvent>.This event is available
 **         only if a <interrupt service/event> is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+void Lidar_OnEnd(void);
+/*
+** ===================================================================
+**     Event       :  Lidar_OnEnd (module Events)
+**
+**     Component   :  Lidar [ADC]
+**     Description :
+**         This event is called after the measurement (which consists
+**         of <1 or more conversions>) is/are finished.
+**         The event is available only when the <Interrupt
+**         service/event> property is enabled.
 **     Parameters  : None
 **     Returns     : Nothing
 ** ===================================================================
