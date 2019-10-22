@@ -3,7 +3,7 @@
   <Header>
     <Name>SOLINDAR</Name>
     <SavedBy>adgp1</SavedBy>
-    <ModificationStamp>32</ModificationStamp>
+    <ModificationStamp>33</ModificationStamp>
     <Date>2019-10-21</Date>
     <IDE>Eclipse IDE</IDE>
     <PEversion>1.9.0.RT6_b1411-0406</PEversion>
@@ -8167,7 +8167,7 @@
               <ItemSymbol>_Pin</ItemSymbol>
               <ReadOnly>false</ReadOnly>
               <UserReadOnly>false</UserReadOnly>
-              <Value>PTD4_KBI2P4</Value>
+              <Value>PTF0_ADP10</Value>
               <SharedPrphMode>false</SharedPrphMode>
             </ItemState>
             <ItemState>
@@ -8445,7 +8445,7 @@
               <ItemSymbol>_Pin</ItemSymbol>
               <ReadOnly>false</ReadOnly>
               <UserReadOnly>false</UserReadOnly>
-              <Value>PTD5_KBI2P5</Value>
+              <Value>PTF1_ADP11</Value>
               <SharedPrphMode>false</SharedPrphMode>
             </ItemState>
             <ItemState>
@@ -8723,7 +8723,7 @@
               <ItemSymbol>_Pin</ItemSymbol>
               <ReadOnly>false</ReadOnly>
               <UserReadOnly>false</UserReadOnly>
-              <Value>PTD6_KBI2P6</Value>
+              <Value>PTA6_TPM1CH2_ADP8</Value>
               <SharedPrphMode>false</SharedPrphMode>
             </ItemState>
             <ItemState>
@@ -9001,7 +9001,7 @@
               <ItemSymbol>_Pin</ItemSymbol>
               <ReadOnly>false</ReadOnly>
               <UserReadOnly>false</UserReadOnly>
-              <Value>PTD7_KBI2P7</Value>
+              <Value>PTA7_TPM2CH2_ADP9</Value>
               <SharedPrphMode>false</SharedPrphMode>
             </ItemState>
             <ItemState>
@@ -9428,7 +9428,7 @@
         <ItemSymbol>_Pin</ItemSymbol>
         <ReadOnly>false</ReadOnly>
         <UserReadOnly>false</UserReadOnly>
-        <Value>PTA6_TPM1CH2_ADP8</Value>
+        <Value>PTD4_KBI2P4</Value>
         <SharedPrphMode>false</SharedPrphMode>
       </ItemState>
       <ItemState>
@@ -10647,12 +10647,12 @@
         <ItemSymbol>Cap</ItemSymbol>
         <ReadOnly>false</ReadOnly>
         <UserReadOnly>false</UserReadOnly>
-        <Value>TPM22</Value>
+        <Value>TPM34</Value>
         <SharedPrphMode>false</SharedPrphMode>
       </ItemState>
       <ItemState>
         <ItemSymbol>Cntr</ItemSymbol>
-        <Value>TPM2</Value>
+        <Value>TPM3</Value>
         <SharedPrphMode>false</SharedPrphMode>
       </ItemState>
       <ItemState>
@@ -10673,7 +10673,7 @@
         <ItemSymbol>Ext</ItemSymbol>
         <ReadOnly>false</ReadOnly>
         <UserReadOnly>false</UserReadOnly>
-        <Value>PTA7_TPM2CH2_ADP9</Value>
+        <Value>PTC4_TPM3CH4_RSTO</Value>
         <SharedPrphMode>false</SharedPrphMode>
       </ItemState>
       <ItemState>
@@ -10800,7 +10800,7 @@
       </ItemState>
       <ItemState>
         <ItemSymbol>CapInt</ItemSymbol>
-        <Value>Vtpm2ch2</Value>
+        <Value>Vtpm3ch4</Value>
       </ItemState>
       <ItemState>
         <ItemSymbol>CapPrior</ItemSymbol>
@@ -11522,14 +11522,14 @@
       </ItemState>
       <ItemState>
         <ItemSymbol>PortAD0</ItemSymbol>
-        <Value>PTF</Value>
+        <Value>PTB</Value>
         <SharedPrphMode>false</SharedPrphMode>
       </ItemState>
       <ItemState>
         <ItemSymbol>AD0</ItemSymbol>
         <ReadOnly>false</ReadOnly>
         <UserReadOnly>false</UserReadOnly>
-        <Value>PTF7_ADP17</Value>
+        <Value>PTB2_KBI1P6_SPSCK1_ADP6</Value>
         <SharedPrphMode>false</SharedPrphMode>
       </ItemState>
       <ItemState>
