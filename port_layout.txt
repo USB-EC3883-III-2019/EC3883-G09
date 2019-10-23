@@ -1,0 +1,16 @@
+# Motor
+Q1 -> PTF0
+Q2 -> PTF1
+Q3 -> PTA6
+Q4 -> PTA7
+
+# Sonar 
+Trigger -> PTD4
+	Esta directo del micro al sonar
+Echo -> PTC4
+	Esta conectado con un divisor de voltaje 
+	one tick of timer is 61.035156 us in high speed mode
+
+# Lidar
+ADC -> PTB2
+	Esta conectado con un divisor de voltaje 
