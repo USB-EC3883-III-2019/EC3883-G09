@@ -7,7 +7,7 @@
 **     Version     : Component 01.003, Driver 01.40, CPU db: 3.00.067
 **     Datasheet   : MC9S08QE128RM Rev. 2 6/2007
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-21, 17:43, # CodeGen: 3
+**     Date/Time   : 2019-10-23, 10:21, # CodeGen: 10
 **     Abstract    :
 **         This component "MC9S08QE128_80" contains initialization 
 **         of the CPU and provides basic methods and events for 
@@ -77,10 +77,15 @@
 #include "Echo.h"
 #include "Lidar.h"
 #include "AS1.h"
+#include "Filter.h"
+#include "LED_Filter.h"
+#include "TI3.h"
+#include "FC321.h"
 #include "PE_Types.h"
 #include "PE_Error.h"
 #include "PE_Const.h"
 #include "IO_Map.h"
+#include "PE_Timer.h"
 #include "Events.h"
 #include "Cpu.h"
 
@@ -90,7 +95,7 @@ volatile byte CCR_reg;                 /* Current CCR register */
 volatile byte CCR_lock;                /* Nesting level of critical regions */
 
 /*Definition of global shadow variables*/
-byte Shadow_PTA;
+byte Shadow_PTD;
 
 
 /*
@@ -163,8 +168,6 @@ void _EntryPoint(void)
   /* Common initialization of the write once registers */
   /* SOPT1: COPE=0,COPT=1,STOPE=0,??=0,??=0,RSTOPE=0,BKGDPE=1,RSTPE=0 */
   setReg8(SOPT1, 0x42U);                
-  /* SOPT2: COPCLKS=0,??=0,??=0,??=0,SPI1PS=0,ACIC2=0,IIC1PS=0,ACIC1=0 */
-  setReg8(SOPT2, 0x00U);                
   /* SPMSC1: LVDF=0,LVDACK=0,LVDIE=0,LVDRE=1,LVDSE=1,LVDE=1,??=0,BGBE=0 */
   setReg8(SPMSC1, 0x1CU);               
   /* SPMSC2: LPR=0,LPRS=0,LPWUI=0,??=0,PPDF=0,PPDACK=0,PPDE=1,PPDC=0 */
@@ -216,20 +219,30 @@ void PE_low_level_init(void)
   /* SCGC2: DBG=1,FLS=1,IRQ=1,KBI=1,ACMP=1,RTC=1,SPI2=1,SPI1=1 */
   setReg8(SCGC2, 0xFFU);                
   /* Common initialization of the CPU registers */
-  /* PTDD: PTDD7=0,PTDD6=0,PTDD5=0,PTDD4=0 */
-  clrReg8Bits(PTDD, 0xF0U);             
-  /* PTDPE: PTDPE7=0,PTDPE6=0,PTDPE5=0,PTDPE4=0 */
-  clrReg8Bits(PTDPE, 0xF0U);            
-  /* PTDDD: PTDDD7=1,PTDDD6=1,PTDDD5=1,PTDDD4=1 */
-  setReg8Bits(PTDDD, 0xF0U);            
-  /* PTAD: PTAD6=0 */
-  clrReg8Bits(PTAD, 0x40U);             
-  /* PTAPE: PTAPE7=0,PTAPE6=0 */
-  clrReg8Bits(PTAPE, 0xC0U);            
-  /* PTADD: PTADD7=0,PTADD6=1 */
-  clrSetReg8Bits(PTADD, 0x80U, 0x40U);  
-  /* APCTL3: ADPC17=1 */
-  setReg8Bits(APCTL3, 0x02U);           
+  /* PTFD: PTFD1=0,PTFD0=0 */
+  clrReg8Bits(PTFD, 0x03U);             
+  /* PTFPE: PTFPE1=0,PTFPE0=0 */
+  clrReg8Bits(PTFPE, 0x03U);            
+  /* PTFDD: PTFDD1=1,PTFDD0=1 */
+  setReg8Bits(PTFDD, 0x03U);            
+  /* PTAD: PTAD7=0,PTAD6=0 */
+  clrReg8Bits(PTAD, 0xC0U);             
+  /* PTAPE: PTAPE7=0,PTAPE6=0,PTAPE2=0 */
+  clrReg8Bits(PTAPE, 0xC4U);            
+  /* PTADD: PTADD7=1,PTADD6=1,PTADD2=0 */
+  clrSetReg8Bits(PTADD, 0x04U, 0xC0U);  
+  /* PTDD: PTDD4=0,PTDD1=0 */
+  clrReg8Bits(PTDD, 0x12U);             
+  /* PTDPE: PTDPE4=0,PTDPE1=0 */
+  clrReg8Bits(PTDPE, 0x12U);            
+  /* PTDDD: PTDDD4=1,PTDDD1=1 */
+  setReg8Bits(PTDDD, 0x12U);            
+  /* PTCPE: PTCPE4=0 */
+  clrReg8Bits(PTCPE, 0x10U);            
+  /* PTCDD: PTCDD4=0 */
+  clrReg8Bits(PTCDD, 0x10U);            
+  /* APCTL1: ADPC6=1 */
+  setReg8Bits(APCTL1, 0x40U);           
   /* PTBDD: PTBDD1=1,PTBDD0=0 */
   clrSetReg8Bits(PTBDD, 0x01U, 0x02U);  
   /* PTBD: PTBD1=1 */
@@ -277,7 +290,7 @@ void PE_low_level_init(void)
   /* ### BitIO "Inhr4" init code ... */
   /* ### MultiBitIO "MBit1" init code ... */
   /* ### BitIO "Trigger" init code ... */
-  Shadow_PTA &= 0xBFU;                 /* Initialize pin shadow variable bit */
+  Shadow_PTD &= 0xEFU;                 /* Initialize pin shadow variable bit */
   /* ### TimerInt "TI1" init code ... */
   TI1_Init();
   /* ### TimerInt "TI2" init code ... */
@@ -288,6 +301,16 @@ void PE_low_level_init(void)
   Lidar_Init();
   /* ### Asynchro serial "AS1" init code ... */
   AS1_Init();
+  Filter_Init();
+  /* ### BitIO "LED_Filter" init code ... */
+  Shadow_PTD &= 0xFDU;                 /* Initialize pin shadow variable bit */
+  /* ### TimerInt "TI3" init code ... */
+  TI3_Init();
+  /* ### Free running 8-bit counter "FC321" init code ... */
+  FC321_Init();
+  /* Common peripheral initialization - ENABLE */
+  /* TPM1SC: CLKSB=0,CLKSA=1 */
+  clrSetReg8Bits(TPM1SC, 0x10U, 0x08U); 
   CCR_lock = (byte)0;
   __EI();                              /* Enable interrupts */
 }

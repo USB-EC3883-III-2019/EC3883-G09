@@ -6,7 +6,7 @@
 **     Component   : ADC
 **     Version     : Component 01.690, Driver 01.30, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-21, 17:40, # CodeGen: 2
+**     Date/Time   : 2019-10-23, 08:32, # CodeGen: 4
 **     Abstract    :
 **         This device "ADC" implements an A/D converter,
 **         its control methods and interrupt/event handling procedure.
@@ -19,7 +19,7 @@
 **            A/D interrupt priority                       : medium priority
 **          A/D channels                                   : 1
 **            Channel0                                     : 
-**              A/D channel (pin)                          : PTF7_ADP17
+**              A/D channel (pin)                          : PTB2_KBI1P6_SPSCK1_ADP6
 **              A/D channel (pin) signal                   : 
 **          A/D resolution                                 : Autoselect
 **          Conversion time                                : 3.655752 µs
@@ -102,7 +102,7 @@
 #define SINGLE          0x03U          /* SINGLE state         */
 
 
-static const  byte Channels = 0x51U;   /* Content for the device control register */
+static const  byte Channels = 0x46U;   /* Content for the device control register */
 
 static volatile bool OutFlg;           /* Measurement finish flag */
 static volatile byte ModeFlg;          /* Current state of device */

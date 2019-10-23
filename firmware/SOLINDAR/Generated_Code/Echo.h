@@ -6,7 +6,7 @@
 **     Component   : Capture
 **     Version     : Component 02.223, Driver 01.30, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-21, 17:33, # CodeGen: 0
+**     Date/Time   : 2019-10-23, 08:32, # CodeGen: 4
 **     Abstract    :
 **         This component "Capture" simply implements the capture function
 **         of timer. The counter counts the same way as in free run mode. On
@@ -17,7 +17,7 @@
 **             Timer capture encapsulation : Capture
 **
 **         Timer
-**             Timer                   : TPM2
+**             Timer                   : TPM3
 **             Counter shared          : No
 **
 **         High speed mode
@@ -36,22 +36,22 @@
 **              Events                 : Enabled
 **
 **         Timer registers
-**              Capture                : TPM2C2V   [$005C]
-**              Counter                : TPM2CNT   [$0051]
-**              Mode                   : TPM2SC    [$0050]
-**              Run                    : TPM2SC    [$0050]
-**              Prescaler              : TPM2SC    [$0050]
+**              Capture                : TPM3C4V   [$0072]
+**              Counter                : TPM3CNT   [$0061]
+**              Mode                   : TPM3SC    [$0060]
+**              Run                    : TPM3SC    [$0060]
+**              Prescaler              : TPM3SC    [$0060]
 **
 **         Used input pin              : 
 **             ----------------------------------------------------
 **                Number (on package)  |    Name
 **             ----------------------------------------------------
-**                       47            |  PTA7_TPM2CH2_ADP9
+**                       78            |  PTC4_TPM3CH4_RSTO
 **             ----------------------------------------------------
 **
-**         Port name                   : PTA
-**         Bit number (in port)        : 7
-**         Bit mask of the port        : $0080
+**         Port name                   : PTC
+**         Bit number (in port)        : 4
+**         Bit mask of the port        : $0010
 **
 **         Signal edge/level           : both
 **         Priority                    : 
@@ -153,7 +153,7 @@ byte Echo_Enable(void);
 */
 
 #define Echo_Reset() \
-  (TPM2CNTH = 0U , (byte)ERR_OK)
+  (TPM3CNTH = 0U , (byte)ERR_OK)
 /*
 ** ===================================================================
 **     Method      :  Echo_Reset (component Capture)
@@ -171,7 +171,7 @@ byte Echo_Enable(void);
 
 #define Echo_GetCaptureValue(Value) \
   /*lint -save  -e926 -e927 -e928 -e929 Disable MISRA rule (11.4) checking. */\
-  (*(Echo_TCapturedValue*)(Value) = TPM2C2V , (byte)ERR_OK) \
+  (*(Echo_TCapturedValue*)(Value) = TPM3C4V , (byte)ERR_OK) \
   /*lint -restore Enable MISRA rule (11.4) checking. */
 /*
 ** ===================================================================
