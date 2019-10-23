@@ -6,7 +6,7 @@
 **     Component   : BitIO
 **     Version     : Component 02.086, Driver 03.27, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-21, 17:33, # CodeGen: 0
+**     Date/Time   : 2019-10-23, 08:32, # CodeGen: 4
 **     Abstract    :
 **         This component "BitIO" implements an one-bit input/output.
 **         It uses one bit/pin of a port.
@@ -17,21 +17,21 @@
 **             ----------------------------------------------------
 **                Number (on package)  |    Name
 **             ----------------------------------------------------
-**                       48            |  PTA6_TPM1CH2_ADP8
+**                       56            |  PTD4_KBI2P4
 **             ----------------------------------------------------
 **
-**         Port name                   : PTA
+**         Port name                   : PTD
 **
-**         Bit number (in port)        : 6
-**         Bit mask of the port        : $0040
+**         Bit number (in port)        : 4
+**         Bit mask of the port        : $0010
 **
 **         Initial direction           : Output (direction can be changed)
 **         Safe mode                   : yes
 **         Initial output value        : 0
 **         Initial pull option         : off
 **
-**         Port data register          : PTAD      [$0000]
-**         Port control register       : PTADD     [$0001]
+**         Port data register          : PTDD      [$0006]
+**         Port control register       : PTDDD     [$0007]
 **
 **         Optimization for            : speed
 **     Contents    :
@@ -142,11 +142,11 @@ bool Trigger_GetVal(void)
 void Trigger_PutVal(bool Val)
 {
   if (Val) {
-    setReg8Bits(PTAD, 0x40U);          /* PTAD6=0x01U */
-    Shadow_PTA |= 0x40U;               /* Set-up shadow variable */
+    setReg8Bits(PTDD, 0x10U);          /* PTDD4=0x01U */
+    Shadow_PTD |= 0x10U;               /* Set-up shadow variable */
   } else { /* !Val */
-    clrReg8Bits(PTAD, 0x40U);          /* PTAD6=0x00U */
-    Shadow_PTA &= 0xBFU;               /* Set-up shadow variable */
+    clrReg8Bits(PTDD, 0x10U);          /* PTDD4=0x00U */
+    Shadow_PTD &= 0xEFU;               /* Set-up shadow variable */
   } /* !Val */
 }
 
@@ -209,10 +209,10 @@ void Trigger_SetVal(void)
 void Trigger_SetDir(bool Dir)
 {
   if (Dir) {
-    setReg8(PTAD, (getReg8(PTAD) & (byte)(~(byte)0x40U)) | (Shadow_PTA & 0x40U)); /* PTAD6=Shadow_PTA[bit 6] */
-    setReg8Bits(PTADD, 0x40U);         /* PTADD6=0x01U */
+    setReg8(PTDD, (getReg8(PTDD) & (byte)(~(byte)0x10U)) | (Shadow_PTD & 0x10U)); /* PTDD4=Shadow_PTD[bit 4] */
+    setReg8Bits(PTDDD, 0x10U);         /* PTDDD4=0x01U */
   } else { /* !Dir */
-    clrReg8Bits(PTADD, 0x40U);         /* PTADD6=0x00U */
+    clrReg8Bits(PTDDD, 0x10U);         /* PTDDD4=0x00U */
   } /* !Dir */
 }
 

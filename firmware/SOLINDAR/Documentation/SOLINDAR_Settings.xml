@@ -837,7 +837,7 @@ asm(BGND);
           <Template v="Interface_BitIO" />
           <Properties>
             <Component_name v="Inhr1" />
-            <Pin_for_I_O v="PTD4_KBI2P4" />
+            <Pin_for_I_O v="PTF0_ADP10" />
             <Pull_resistor sel_value="no pull resistor">
               
 autoselected pull
@@ -845,8 +845,8 @@ autoselected pull
               <EmptySection_DummyValue />
             </Pull_resistor>
             <Open_drain v="push-pull" />
-            <Slew_rate_control_for_PTD4 v="no" />
-            <Drive_strength_for_PTD4 v="High" />
+            <Slew_rate_control_for_PTF0 v="no" />
+            <Drive_strength_for_PTF0 v="High" />
             <Direction v="Output" />
             <group name="Initialization">
               <Init__direction v="Output" />
@@ -875,7 +875,7 @@ autoselected pull
           <Template v="Interface_BitIO" />
           <Properties>
             <Component_name v="Inhr2" />
-            <Pin_for_I_O v="PTD5_KBI2P5" />
+            <Pin_for_I_O v="PTF1_ADP11" />
             <Pull_resistor sel_value="no pull resistor">
               
 autoselected pull
@@ -883,8 +883,8 @@ autoselected pull
               <EmptySection_DummyValue />
             </Pull_resistor>
             <Open_drain v="push-pull" />
-            <Slew_rate_control_for_PTD5 v="no" />
-            <Drive_strength_for_PTD5 v="High" />
+            <Slew_rate_control_for_PTF1 v="no" />
+            <Drive_strength_for_PTF1 v="High" />
             <Direction v="Output" />
             <group name="Initialization">
               <Init__direction v="Output" />
@@ -913,7 +913,7 @@ autoselected pull
           <Template v="Interface_BitIO" />
           <Properties>
             <Component_name v="Inhr3" />
-            <Pin_for_I_O v="PTD6_KBI2P6" />
+            <Pin_for_I_O v="PTA6_TPM1CH2_ADP8" />
             <Pull_resistor sel_value="no pull resistor">
               
 autoselected pull
@@ -921,8 +921,8 @@ autoselected pull
               <EmptySection_DummyValue />
             </Pull_resistor>
             <Open_drain v="push-pull" />
-            <Slew_rate_control_for_PTD6 v="no" />
-            <Drive_strength_for_PTD6 v="High" />
+            <Slew_rate_control_for_PTA6 v="no" />
+            <Drive_strength_for_PTA6 v="High" />
             <Direction v="Output" />
             <group name="Initialization">
               <Init__direction v="Output" />
@@ -951,7 +951,7 @@ autoselected pull
           <Template v="Interface_BitIO" />
           <Properties>
             <Component_name v="Inhr4" />
-            <Pin_for_I_O v="PTD7_KBI2P7" />
+            <Pin_for_I_O v="PTA7_TPM2CH2_ADP9" />
             <Pull_resistor sel_value="no pull resistor">
               
 autoselected pull
@@ -959,8 +959,8 @@ autoselected pull
               <EmptySection_DummyValue />
             </Pull_resistor>
             <Open_drain v="push-pull" />
-            <Slew_rate_control_for_PTD7 v="no" />
-            <Drive_strength_for_PTD7 v="High" />
+            <Slew_rate_control_for_PTA7 v="no" />
+            <Drive_strength_for_PTA7 v="High" />
             <Direction v="Output" />
             <group name="Initialization">
               <Init__direction v="Output" />
@@ -1012,7 +1012,7 @@ autoselected pull
     <Enabled v="Y" />
     <Properties>
       <Component_name v="Trigger" />
-      <Pin_for_I_O v="PTA6_TPM1CH2_ADP8" />
+      <Pin_for_I_O v="PTD4_KBI2P4" />
       <Pull_resistor sel_value="no pull resistor">
         
 autoselected pull
@@ -1020,8 +1020,8 @@ autoselected pull
         <EmptySection_DummyValue />
       </Pull_resistor>
       <Open_drain v="push-pull" />
-      <Slew_rate_control_for_PTA6 v="no" />
-      <Drive_strength_for_PTA6 v="High" />
+      <Slew_rate_control_for_PTD4 v="no" />
+      <Drive_strength_for_PTD4 v="High" />
       <Direction v="Input/Output" />
       <group name="Initialization">
         <Init__direction v="Output" />
@@ -1104,7 +1104,7 @@ autoselected pull
         <Interrupt v="Vrtc" />
         <Interrupt_priority v="medium priority" />
       </boolgroup>
-      <Interrupt_period v="25 ms" />
+      <Interrupt_period v="250000 ms" />
       <Same_period_in_modes v="yes" />
       <Component_uses_entire_timer v="no" />
       <group name="Initialization">
@@ -1147,9 +1147,9 @@ autoselected pull
     <Enabled v="Y" />
     <Properties>
       <Component_name v="Echo" />
-      <Capture_device v="TPM22" />
-      <Counter v="TPM2" />
-      <Capture_input_pin v="PTA7_TPM2CH2_ADP9" />
+      <Capture_device v="TPM34" />
+      <Counter v="TPM3" />
+      <Capture_input_pin v="PTC4_TPM3CH4_RSTO" />
       <Pull_resistor sel_value="no pull resistor">
         
 autoselected pull
@@ -1158,7 +1158,7 @@ autoselected pull
       </Pull_resistor>
       <Edge v="both edges" />
       <boolgroup name="Interrupt service/event" v="Enabled">
-        <Capture_interrupt v="Vtpm2ch2" />
+        <Capture_interrupt v="Vtpm3ch4" />
         <Capture_priority v="medium priority" />
         <boolgroup name="Overflow support" v="Disabled" />
       </boolgroup>
@@ -1206,7 +1206,7 @@ autoselected pull
       </boolgroup>
       <list name="A/D channels" v="1">
         <group name="Channel0">
-          <A_D_channel__pin_ v="PTF7_ADP17" />
+          <A_D_channel__pin_ v="PTB2_KBI1P6_SPSCK1_ADP6" />
         </group>
       </list>
       <A_D_resolution sel_value="12 bits">
@@ -1266,7 +1266,20 @@ Autoselect
     <Properties>
       <Component_name v="AS1" />
       <Channel v="SCI1" />
-      <boolgroup name="Interrupt service/event" v="Disabled" />
+      <boolgroup name="Interrupt service/event" v="Enabled">
+        <Interrupt_RxD v="Vsci1rx" />
+        <Interrupt_RxD_priority v="medium priority" />
+        <Interrupt_TxD v="Vsci1tx" />
+        <Interrupt_TxD_priority v="medium priority" />
+        <Interrupt_Error v="Vsci1err" />
+        <Interrupt_Error_priority v="medium priority" />
+        <Input_buffer_size v="4" />
+        <Output_buffer_size v="4" />
+        <group name="Handshake">
+          <boolgroup name="CTS" v="Disabled" />
+          <boolgroup name="RTS" v="Disabled" />
+        </group>
+      </boolgroup>
       <group name="Settings">
         <Parity v="none" />
         <Width v="8 bits" />
@@ -1307,10 +1320,10 @@ Autoselect
       <DisableEvent v="don&amp;apos;t generate code" />
       <RecvChar v="generate code" />
       <SendChar v="generate code" />
-      <RecvBlock v="don&amp;apos;t generate code" />
-      <SendBlock v="don&amp;apos;t generate code" />
-      <ClearRxBuf v="don&amp;apos;t generate code" />
-      <ClearTxBuf v="don&amp;apos;t generate code" />
+      <RecvBlock v="generate code" />
+      <SendBlock v="generate code" />
+      <ClearRxBuf v="generate code" />
+      <ClearTxBuf v="generate code" />
       <CharsInRxBuf v="don&amp;apos;t generate code" />
       <GetCharsInRxBuf v="generate code" />
       <CharsInTxBuf v="don&amp;apos;t generate code" />
@@ -1336,16 +1349,201 @@ Autoselect
       <Event_module_name v="Events" />
       <event name="BeforeNewSpeed" v="don&amp;apos;t generate code" />
       <event name="AfterNewSpeed" v="don&amp;apos;t generate code" />
-      <event name="OnError" v="don&amp;apos;t generate code" />
-      <event name="OnRxChar" v="don&amp;apos;t generate code" />
+      <event name="OnError" v="generate code">
+        <Event_procedure_name v="AS1_OnError" />
+        <Priority v="same as interrupt" />
+      </event>
+      <event name="OnRxChar" v="generate code">
+        <Event_procedure_name v="AS1_OnRxChar" />
+        <Priority v="same as interrupt" />
+      </event>
       <event name="OnRxCharExt" v="don&amp;apos;t generate code" />
-      <event name="OnTxChar" v="don&amp;apos;t generate code" />
-      <event name="OnFullRxBuf" v="don&amp;apos;t generate code" />
-      <event name="OnFreeTxBuf" v="don&amp;apos;t generate code" />
+      <event name="OnTxChar" v="generate code">
+        <Event_procedure_name v="AS1_OnTxChar" />
+        <Priority v="same as interrupt" />
+      </event>
+      <event name="OnFullRxBuf" v="generate code">
+        <Event_procedure_name v="AS1_OnFullRxBuf" />
+        <Priority v="same as interrupt" />
+      </event>
+      <event name="OnFreeTxBuf" v="generate code">
+        <Event_procedure_name v="AS1_OnFreeTxBuf" />
+        <Priority v="same as interrupt" />
+      </event>
       <event name="OnBreak" v="don&amp;apos;t generate code" />
       <event name="OnIdle" v="don&amp;apos;t generate code" />
       <event name="OnTxComplete" v="don&amp;apos;t generate code" />
       <event name="OnRxActiveEdge" v="don&amp;apos;t generate code" />
+    </Events>
+  </Bean>
+  <Bean name="Filter" type="KBI">
+    <Enabled v="Y" />
+    <Properties>
+      <Component_name v="Filter" />
+      <KBI v="KBI1" />
+      <list name="Pins" v="1">
+        <group name="Pin0">
+          <Pin v="PTA2_KBI1P2_SDA1_ADP2" />
+          <Invert_interrupt_trigger_condition v="no" />
+        </group>
+      </list>
+      <Pull_resistor sel_value="no pull resistor">
+        
+autoselected pull
+
+        <EmptySection_DummyValue />
+      </Pull_resistor>
+      <Generate_interrupt_on v="falling edge" />
+      <boolgroup name="Interrupt service/event" v="Enabled">
+        <Interrupt v="Vkeyboard" />
+        <Interrupt_priority v="medium priority" />
+      </boolgroup>
+      <group name="Initialization">
+        <Enable_in_init__code v="yes" />
+        <Events_enabled_in_init_ v="yes" />
+      </group>
+    </Properties>
+    <Methods>
+      <Enable v="don&amp;apos;t generate code" />
+      <Disable v="don&amp;apos;t generate code" />
+      <EnableEvent v="don&amp;apos;t generate code" />
+      <DisableEvent v="don&amp;apos;t generate code" />
+      <GetVal v="generate code" />
+      <SetEdge v="generate code" />
+      <GetStatus v="don&amp;apos;t generate code" />
+    </Methods>
+    <Events>
+      <Event_module_name v="Events" />
+      <event name="OnInterrupt" v="generate code">
+        <Event_procedure_name v="Filter_OnInterrupt" />
+        <Priority v="same as interrupt" />
+      </event>
+    </Events>
+  </Bean>
+  <Bean name="LED_Filter" type="BitIO">
+    <Enabled v="Y" />
+    <Properties>
+      <Component_name v="LED_Filter" />
+      <Pin_for_I_O v="PTD1_KBI2P1_MOSI2" />
+      <Pull_resistor sel_value="no pull resistor">
+        
+autoselected pull
+
+        <EmptySection_DummyValue />
+      </Pull_resistor>
+      <Open_drain v="push-pull" />
+      <Slew_rate_control_for_PTD1 v="no" />
+      <Drive_strength_for_PTD1 v="High" />
+      <Direction v="Input/Output" />
+      <group name="Initialization">
+        <Init__direction v="Output" />
+        <Init__value v="0" />
+      </group>
+      <Safe_mode v="yes" />
+      <Optimization_for v="speed" />
+    </Properties>
+    <Methods>
+      <GetDir v="don&amp;apos;t generate code" />
+      <SetDir v="generate code" />
+      <SetInput v="don&amp;apos;t generate code" />
+      <SetOutput v="don&amp;apos;t generate code" />
+      <GetVal v="generate code" />
+      <PutVal v="generate code" />
+      <ClrVal v="generate code" />
+      <SetVal v="generate code" />
+      <NegVal v="generate code" />
+    </Methods>
+    <Events>
+      <EmptySection_DummyValue />
+    </Events>
+  </Bean>
+  <Bean name="TI3" type="TimerInt">
+    <Enabled v="Y" />
+    <Properties>
+      <Component_name v="TI3" />
+      <Periodic_interrupt_source v="TPM11" />
+      <Counter v="TPM1" />
+      <boolgroup name="Interrupt service/event" v="Enabled">
+        <Interrupt v="Vtpm1ch1" />
+        <Interrupt_priority v="medium priority" />
+      </boolgroup>
+      <Interrupt_period v="55 ms" />
+      <Same_period_in_modes v="yes" />
+      <Component_uses_entire_timer v="no" />
+      <group name="Initialization">
+        <Enabled_in_init__code v="yes" />
+        <Events_enabled_in_init_ v="yes" />
+      </group>
+      <group name="CPU clock/speed selection">
+        <High_speed_mode v="This component enabled" />
+        <Low_speed_mode v="This component disabled" />
+        <Slow_speed_mode v="This component disabled" />
+      </group>
+    </Properties>
+    <Methods>
+      <Enable v="generate code" />
+      <Disable v="generate code" />
+      <EnableEvent v="don&amp;apos;t generate code" />
+      <DisableEvent v="don&amp;apos;t generate code" />
+      <SetPeriodMode v="don&amp;apos;t generate code" />
+      <SetPeriodTicks16 v="don&amp;apos;t generate code" />
+      <SetPeriodTicks32 v="don&amp;apos;t generate code" />
+      <SetPeriodUS v="don&amp;apos;t generate code" />
+      <SetPeriodMS v="don&amp;apos;t generate code" />
+      <SetPeriodSec v="don&amp;apos;t generate code" />
+      <SetPeriodReal v="don&amp;apos;t generate code" />
+      <SetFreqHz v="don&amp;apos;t generate code" />
+      <SetFreqkHz v="don&amp;apos;t generate code" />
+      <SetFreqMHz v="don&amp;apos;t generate code" />
+    </Methods>
+    <Events>
+      <Event_module_name v="Events" />
+      <event name="BeforeNewSpeed" v="don&amp;apos;t generate code" />
+      <event name="AfterNewSpeed" v="don&amp;apos;t generate code" />
+      <event name="OnInterrupt" v="generate code">
+        <Event_procedure_name v="TI3_OnInterrupt" />
+        <Priority v="same as interrupt" />
+      </event>
+    </Events>
+  </Bean>
+  <Bean name="FC321" type="FreeCntr32">
+    <Enabled v="Y" />
+    <Properties>
+      <Component_name v="FC321" />
+      <Periodic_interrupt_source v="TPM20" />
+      <Counter v="TPM2" />
+      <boolgroup name="Interrupt service/event" v="Enabled">
+        <Interrupt v="Vtpm2ch0" />
+        <Interrupt_priority v="medium priority" />
+      </boolgroup>
+      <Resolution v="100 &amp;#181;s" />
+      <Same_resolution_in_modes v="yes" />
+      <Component_uses_entire_timer v="no" />
+      <group name="Initialization">
+        <Enabled_in_init__code v="yes" />
+      </group>
+      <group name="CPU clock/speed selection">
+        <High_speed_mode v="This component enabled" />
+        <Low_speed_mode v="This component disabled" />
+        <Slow_speed_mode v="This component disabled" />
+      </group>
+    </Properties>
+    <Methods>
+      <Enable v="don&amp;apos;t generate code" />
+      <Disable v="don&amp;apos;t generate code" />
+      <Reset v="generate code" />
+      <GetTicks16 v="don&amp;apos;t generate code" />
+      <GetTicks32 v="don&amp;apos;t generate code" />
+      <GetTicks64 v="don&amp;apos;t generate code" />
+      <GetTimeUS v="generate code" />
+      <GetTimeMS v="generate code" />
+      <GetTimeSec v="don&amp;apos;t generate code" />
+      <GetTimeReal v="don&amp;apos;t generate code" />
+    </Methods>
+    <Events>
+      <Event_module_name v="Events" />
+      <event name="BeforeNewSpeed" v="don&amp;apos;t generate code" />
+      <event name="AfterNewSpeed" v="don&amp;apos;t generate code" />
     </Events>
   </Bean>
 </PE_PROJECT_SETTINGS_DOCUMENTATION>

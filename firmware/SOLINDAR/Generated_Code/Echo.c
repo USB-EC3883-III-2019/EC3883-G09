@@ -6,7 +6,7 @@
 **     Component   : Capture
 **     Version     : Component 02.223, Driver 01.30, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-21, 17:33, # CodeGen: 0
+**     Date/Time   : 2019-10-23, 08:32, # CodeGen: 4
 **     Abstract    :
 **         This component "Capture" simply implements the capture function
 **         of timer. The counter counts the same way as in free run mode. On
@@ -17,7 +17,7 @@
 **             Timer capture encapsulation : Capture
 **
 **         Timer
-**             Timer                   : TPM2
+**             Timer                   : TPM3
 **             Counter shared          : No
 **
 **         High speed mode
@@ -36,22 +36,22 @@
 **              Events                 : Enabled
 **
 **         Timer registers
-**              Capture                : TPM2C2V   [$005C]
-**              Counter                : TPM2CNT   [$0051]
-**              Mode                   : TPM2SC    [$0050]
-**              Run                    : TPM2SC    [$0050]
-**              Prescaler              : TPM2SC    [$0050]
+**              Capture                : TPM3C4V   [$0072]
+**              Counter                : TPM3CNT   [$0061]
+**              Mode                   : TPM3SC    [$0060]
+**              Run                    : TPM3SC    [$0060]
+**              Prescaler              : TPM3SC    [$0060]
 **
 **         Used input pin              : 
 **             ----------------------------------------------------
 **                Number (on package)  |    Name
 **             ----------------------------------------------------
-**                       47            |  PTA7_TPM2CH2_ADP9
+**                       78            |  PTC4_TPM3CH4_RSTO
 **             ----------------------------------------------------
 **
-**         Port name                   : PTA
-**         Bit number (in port)        : 7
-**         Bit mask of the port        : $0080
+**         Port name                   : PTC
+**         Bit number (in port)        : 4
+**         Bit mask of the port        : $0010
 **
 **         Signal edge/level           : both
 **         Priority                    : 
@@ -132,10 +132,10 @@
 */
 byte Echo_Enable(void)
 {
-  /* TPM2C2SC: CH2F=0,CH2IE=1,MS2B=0,MS2A=0,ELS2B=1,ELS2A=1,??=0,??=0 */
-  setReg8(TPM2C2SC, 0x4CU);            /* Enable both interrupt and capture function */ 
-  /* TPM2SC: CLKSB=1,CLKSA=0 */
-  clrSetReg8Bits(TPM2SC, 0x08U, 0x10U); /* Run counter */ 
+  /* TPM3C4SC: CH4F=0,CH4IE=1,MS4B=0,MS4A=0,ELS4B=1,ELS4A=1,??=0,??=0 */
+  setReg8(TPM3C4SC, 0x4CU);            /* Enable both interrupt and capture function */ 
+  /* TPM3SC: CLKSB=1,CLKSA=0 */
+  clrSetReg8Bits(TPM3SC, 0x08U, 0x10U); /* Run counter */ 
   return ERR_OK;                       /* OK */
 }
 
@@ -196,20 +196,20 @@ byte Echo_GetCaptureValue(Echo_TCapturedValue *Value)
 */
 void Echo_Init(void)
 {
-  /* TPM2SC: TOF=0,TOIE=0,CPWMS=0,CLKSB=0,CLKSA=0,PS2=0,PS1=0,PS0=0 */
-  setReg8(TPM2SC, 0x00U);              /* Stop HW */ 
-  /* TPM2MOD: BIT15=0,BIT14=0,BIT13=0,BIT12=0,BIT11=0,BIT10=0,BIT9=0,BIT8=0,BIT7=0,BIT6=0,BIT5=0,BIT4=0,BIT3=0,BIT2=0,BIT1=0,BIT0=0 */
-  setReg16(TPM2MOD, 0x00U);            /* Disable modulo register */ 
-  /* TPM2CNTH: BIT15=0,BIT14=0,BIT13=0,BIT12=0,BIT11=0,BIT10=0,BIT9=0,BIT8=0 */
-  setReg8(TPM2CNTH, 0x00U);            /* Reset counter */ 
-  /* TPM2C2V: BIT15=0,BIT14=0,BIT13=0,BIT12=0,BIT11=0,BIT10=0,BIT9=0,BIT8=0,BIT7=0,BIT6=0,BIT5=0,BIT4=0,BIT3=0,BIT2=0,BIT1=0,BIT0=0 */
-  setReg16(TPM2C2V, 0x00U);            /* Clear capture register */ 
-  /* TPM2SC: PS2=0,PS1=0,PS0=0 */
-  clrReg8Bits(TPM2SC, 0x07U);          /* Set prescaler register */ 
-  /* TPM2C2SC: CH2F=0,CH2IE=1,MS2B=0,MS2A=0,ELS2B=1,ELS2A=1,??=0,??=0 */
-  setReg8(TPM2C2SC, 0x4CU);            /* Enable both interrupt and capture function */ 
-  /* TPM2SC: CLKSB=1,CLKSA=0 */
-  clrSetReg8Bits(TPM2SC, 0x08U, 0x10U); /* Run counter */ 
+  /* TPM3SC: TOF=0,TOIE=0,CPWMS=0,CLKSB=0,CLKSA=0,PS2=0,PS1=0,PS0=0 */
+  setReg8(TPM3SC, 0x00U);              /* Stop HW */ 
+  /* TPM3MOD: BIT15=0,BIT14=0,BIT13=0,BIT12=0,BIT11=0,BIT10=0,BIT9=0,BIT8=0,BIT7=0,BIT6=0,BIT5=0,BIT4=0,BIT3=0,BIT2=0,BIT1=0,BIT0=0 */
+  setReg16(TPM3MOD, 0x00U);            /* Disable modulo register */ 
+  /* TPM3CNTH: BIT15=0,BIT14=0,BIT13=0,BIT12=0,BIT11=0,BIT10=0,BIT9=0,BIT8=0 */
+  setReg8(TPM3CNTH, 0x00U);            /* Reset counter */ 
+  /* TPM3C4V: BIT15=0,BIT14=0,BIT13=0,BIT12=0,BIT11=0,BIT10=0,BIT9=0,BIT8=0,BIT7=0,BIT6=0,BIT5=0,BIT4=0,BIT3=0,BIT2=0,BIT1=0,BIT0=0 */
+  setReg16(TPM3C4V, 0x00U);            /* Clear capture register */ 
+  /* TPM3SC: PS2=0,PS1=0,PS0=0 */
+  clrReg8Bits(TPM3SC, 0x07U);          /* Set prescaler register */ 
+  /* TPM3C4SC: CH4F=0,CH4IE=1,MS4B=0,MS4A=0,ELS4B=1,ELS4A=1,??=0,??=0 */
+  setReg8(TPM3C4SC, 0x4CU);            /* Enable both interrupt and capture function */ 
+  /* TPM3SC: CLKSB=1,CLKSA=0 */
+  clrSetReg8Bits(TPM3SC, 0x08U, 0x10U); /* Run counter */ 
 }
 
 
@@ -225,9 +225,9 @@ void Echo_Init(void)
 */
 ISR(Echo_Interrupt)
 {
-  (void)TPM2C2SC;                      /* Dummy read to reset interrupt request flag */
-  /* TPM2C2SC: CH2F=0 */
-  clrReg8Bits(TPM2C2SC, 0x80U);        /* Reset interrupt request flag */ 
+  (void)TPM3C4SC;                      /* Dummy read to reset interrupt request flag */
+  /* TPM3C4SC: CH4F=0 */
+  clrReg8Bits(TPM3C4SC, 0x80U);        /* Reset interrupt request flag */ 
   Echo_OnCapture();                    /* Invoke user event */
 }
 
