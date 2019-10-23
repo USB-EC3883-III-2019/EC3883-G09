@@ -41,6 +41,10 @@
 #include "Echo.h"
 #include "Lidar.h"
 #include "AS1.h"
+#include "Filter.h"
+#include "LED_Filter.h"
+#include "TI3.h"
+#include "FC321.h"
 /* Include shared modules, which are used for whole project */
 #include "PE_Types.h"
 #include "PE_Error.h"
@@ -48,7 +52,7 @@
 #include "IO_Map.h"
 
 /* User includes (#include below this line is not maintained by Processor Expert) */
-#define STEPS_MODE 0    //0 for whole steps, 1 for half steps
+#define STEPS_MODE 1    //0 for whole steps, 1 for half steps
 #define MAX_POS 64      
 
 //Constants
@@ -62,10 +66,9 @@ const char steps[] = { 10,     //1010
                         6,     //0110
                         2,     //0010
 };
-bool echo_flg = TRUE, trgg_flg = TRUE, cap_flg_ris = TRUE, motor_flg = TRUE;
-unsigned int son_dis = 0, echo_time, count = 1;	
-word ptr;
-
+bool echo_flg = TRUE, trgg_flg = TRUE, cap_flg_ris = TRUE, motor_flg = TRUE, fil_on_flg = TRUE, lid_flg = TRUE;
+unsigned int son_dis_arr[3], echo_time, count = 1, son_dis;	
+word time;
 /*  Variables explanation:
 **  echo_flg    :	auxiliary flag. Wait for interrupt to occur.
 **	trgg_flg   	:	trigger flag. TRUE until the interrupt occurs, FALSE after the interrupt.
@@ -80,20 +83,23 @@ void main(void)
 {
   /* Write your local variable definition here */
 
-  char pos = 0, frame[4];
+  char pos = 0, frame[4], i;
   /*
    * pos       : position. Motor's position.
    * frame     : frame for serial communication.
+   * i         : counter
    */
   bool dir_flg = TRUE;
   /*
    * dir_flg   : direction flag. TRUE for clockwise, FALSE for counterclockwise.
    */
-  unsigned int lid_vol;
+  unsigned int lid_vol_arr[3], lid_vol;
   /*
-   * lid_vol   : lidar voltage. Voltage output of LIDAR.
+   * lid_vol_arr: lidar voltage array. Measurements of LIDAR.
+   * lid_vol    : lidar voltage. Voltage average of LIDAR.
    */
-   
+  word ptr;
+
 		  
   /*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
   PE_low_level_init();
@@ -101,17 +107,21 @@ void main(void)
 
   /* Write your code here */
   /* For example: for(;;) { } */
-
+  LED_Filter_SetVal();	//Turning the LED on to indicate that the filter is ON (default)
   TI1_Disable();		//Start the program with interrupt off
+  
   for (;;){
-	  
+	  i = 0;
+	  TI3_Enable();
+    for(i;i<3;i++){
 /*###################################################################
 						Lidar Control
 ###################################################################*/
 	  
 	  Lidar_Measure(TRUE);
-	  Lidar_GetValue(&lid_vol);	  
-	  
+	  Lidar_GetValue(&lid_vol_arr[i]);	  
+	  while(lid_flg){}	//Wait for interrupt.
+	  lid_flg = !lid_flg;	//Restoring the flag
 /*###################################################################
 				    	End of Lidar Control
 ###################################################################*/
@@ -133,16 +143,19 @@ void main(void)
 	  while(echo_flg){}	//Wait for interrupt.
 	  echo_flg = !echo_flg;	//Restoring the flag
 	  if (count%2){
-		  son_dis = echo_time/58;
+		  son_dis_arr[i] = echo_time;
 	  }
 	  
 /*###################################################################
 		     	       End of Sonar Control
 ###################################################################*/
+  } //End of for loop (3 measurements)
+    TI3_Disable();
+    i=0;
 /*###################################################################
                           Motor Control
 ###################################################################*/
-	  
+/*	  
     //Applying signal
     MBit1_PutVal(steps[pos%8]);
     
@@ -169,10 +182,32 @@ void main(void)
     }
     
     while(motor_flg){}
-  	motor_flg = TRUE;	  
+  	motor_flg = !motor_flg;	  
     
 /*###################################################################
 				    	End of Motor Control
+###################################################################*/
+/*###################################################################
+				    	Filter (average)
+###################################################################*/
+  if(fil_on_flg){
+    //Filter on: calculate the average of measurements
+    i = 0;    //Resetting counter
+    lid_vol = 0;  //Reseting output value
+    son_dis = 0;
+    for(i; i < 3 ; i++){
+      lid_vol += lid_vol_arr[i];  //Summing up all the measurements 
+      son_dis += son_dis_arr[i];
+    }
+    lid_vol = lid_vol/i;   //Dividing by the number of measurements to complete the average process
+    son_dis = son_dis/i;
+  }else{
+    //Filter off: asign the last measurement
+    lid_vol = lid_vol_arr[2];
+    son_dis = son_dis_arr[2];
+  }
+/*###################################################################
+				    End of Filter (average)
 ###################################################################*/
 /*###################################################################
 				     	 	Frame Construction
@@ -200,7 +235,7 @@ void main(void)
 						End of Frame Construction
 ###################################################################*/
 /*###################################################################
-			Serial Communication
+						Serial Communication
 ###################################################################*/    
   
     AS1_SendBlock(frame,sizeof(frame),&ptr);

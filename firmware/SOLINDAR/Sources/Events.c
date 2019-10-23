@@ -32,14 +32,13 @@
 #include "Events.h"
 
 /* User includes (#include below this line is not maintained by Processor Expert) */
-extern bool echo_flg, trgg_flg, cap_flg_ris, motor_flg;
-extern unsigned int son_dis, echo_time, count;
+extern bool echo_flg, trgg_flg, cap_flg_ris, motor_flg, fil_on_flg, lid_flg;
+extern unsigned int echo_time, count;
 /*	Variables explanation:
 **  echo_flg   	: 	auxiliary flag. Wait for interrupt to occur.
 **	trgg_flg	:	trigger flag. TRUE until the interrupt occurs, FALSE after the interrupt.
 **	cap_flg_ris	:	capture flag rising. TRUE if rising edge, FLASE if falling edge.
 **	motor_flg	:	motor flag. TRUE if motor is to move. FALSE otherwise.
-**	son_dis		:	sonar distance. Sonar distance measured in centimetres.
 **	echo_time	:	echo time. Measures the duration of the echo signal. 
 */
 
@@ -83,7 +82,7 @@ void TI1_OnInterrupt(void)
 void TI2_OnInterrupt(void)
 {
   /* Write your code here ... */
-	motor_flg = FALSE;
+	motor_flg = !motor_flg;
 }
 
 /*
@@ -125,9 +124,140 @@ void Echo_OnCapture(void)
 */
 void Lidar_OnEnd(void)
 {
+
+}
+
+
+/*
+** ===================================================================
+**     Event       :  AS1_OnError (module Events)
+**
+**     Component   :  AS1 [AsynchroSerial]
+**     Description :
+**         This event is called when a channel error (not the error
+**         returned by a given method) occurs. The errors can be read
+**         using <GetError> method.
+**         The event is available only when the <Interrupt
+**         service/event> property is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void  AS1_OnError(void)
+{
   /* Write your code here ... */
 }
 
+/*
+** ===================================================================
+**     Event       :  AS1_OnRxChar (module Events)
+**
+**     Component   :  AS1 [AsynchroSerial]
+**     Description :
+**         This event is called after a correct character is received.
+**         The event is available only when the <Interrupt
+**         service/event> property is enabled and either the <Receiver>
+**         property is enabled or the <SCI output mode> property (if
+**         supported) is set to Single-wire mode.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void  AS1_OnRxChar(void)
+{
+  /* Write your code here ... */
+}
+
+/*
+** ===================================================================
+**     Event       :  AS1_OnTxChar (module Events)
+**
+**     Component   :  AS1 [AsynchroSerial]
+**     Description :
+**         This event is called after a character is transmitted.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void  AS1_OnTxChar(void)
+{
+  /* Write your code here ... */
+}
+
+/*
+** ===================================================================
+**     Event       :  AS1_OnFullRxBuf (module Events)
+**
+**     Component   :  AS1 [AsynchroSerial]
+**     Description :
+**         This event is called when the input buffer is full;
+**         i.e. after reception of the last character 
+**         that was successfully placed into input buffer.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void  AS1_OnFullRxBuf(void)
+{
+  /* Write your code here ... */
+}
+
+/*
+** ===================================================================
+**     Event       :  AS1_OnFreeTxBuf (module Events)
+**
+**     Component   :  AS1 [AsynchroSerial]
+**     Description :
+**         This event is called after the last character in output
+**         buffer is transmitted.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void  AS1_OnFreeTxBuf(void)
+{
+  /* Write your code here ... */
+}
+
+/*
+** ===================================================================
+**     Event       :  Filter_OnInterrupt (module Events)
+**
+**     Component   :  Filter [KBI]
+**     Description :
+**         This event is called when the active signal edge/level
+**         occurs. This event is enabled only if <Interrupt
+**         service/event> property is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void Filter_OnInterrupt(void)
+{
+	fil_on_flg = !fil_on_flg;
+	LED_Filter_NegVal();
+	
+}
+
+/*
+** ===================================================================
+**     Event       :  TI3_OnInterrupt (module Events)
+**
+**     Component   :  TI3 [TimerInt]
+**     Description :
+**         When a timer interrupt occurs this event is called (only
+**         when the component is enabled - <Enable> and the events are
+**         enabled - <EnableEvent>). This event is enabled only if a
+**         <interrupt service/event> is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void TI3_OnInterrupt(void)
+{
+  /* Write your code here ... */
+	lid_flg = !lid_flg;
+}
 
 /* END Events */
 
