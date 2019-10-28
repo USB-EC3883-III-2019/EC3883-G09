@@ -7,3 +7,4 @@ ReferencedRSESystems.xml
 .metadata
 RemoteLaunch
 RemoteSystemsTempFiles
+__pycache__
