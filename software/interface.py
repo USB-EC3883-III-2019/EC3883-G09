@@ -21,7 +21,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-
+from com import *
 
 class MplCanvas(FigureCanvas):
     """ 
@@ -33,19 +33,23 @@ class MplCanvas(FigureCanvas):
     def __init__(self, parent=None, width=1, height=1, dpi=100):
 
         #Plot config
+        import math
         self.fig = plt.figure()  
         FigureCanvas.__init__(self, self.fig)
         self.axes = self.fig.add_subplot(111, projection="polar")
+        self.axes.set_thetamin(-30)
+        self.axes.set_thetamax(210)
         #hide x's and y's labels 
+        self.axes.set_xticklabels(np.linspace(0,360,10))
         self.axes.set_yticklabels([])
         
 
         #Grid configuration
         
-        self.axes.grid(b=True,which='major',color='k',linestyle='-')
-        self.axes.minorticks_on()
-        self.axes.grid(b=True,which='minor',linestyle='--')
-        self.axes.set_facecolor((0,0,0))
+        #self.axes.grid(b=True,which='major',color='r',linestyle='-')
+        #self.axes.minorticks_on()
+        #self.axes.grid(b=True,which='minor',linestyle='--')
+        self.axes.set_facecolor((1,1,1))
 
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(parent) #really important to do this for the gui to show image
@@ -53,7 +57,13 @@ class MplCanvas(FigureCanvas):
         
         self.fig.set_facecolor("none")
         self.canvas.setStyleSheet("background-color:transparent;")
-
+        self.axes.set_ylim([0.0, 80.0])
+        self.axes.set_xlim([math.pi*(-30)/180, math.pi*(210)/180])
+        self.dataSerial = openPort()
+        
+        self.sonar = []
+        self.lidar = []
+        self.pos = []
         
     
     def plot(self):
@@ -68,12 +78,36 @@ class MplCanvas(FigureCanvas):
             self.update_figure()
         return _plot
 
-    def update_figure():
-        
+    def update_figure(self):
+        import math
         self.axes.clear()
-        data = [] #empty array to receive data from DEM0QE
 
+         #empty array to receive data from DEM0QE
+        data = receiveData(self.dataSerial)
+        if len(self.pos) >= 5: 
+            self.pos.pop(0)
+            self.sonar.pop(0)
+            self.lidar.pop(0)
         
+        self.pos.append(data[0])
+        self.sonar.append(data[1])
+        self.lidar.append(data[2])
+
+        self.axes.set_thetamin(-30)
+        self.axes.set_thetamax(210)
+        self.axes.set_ylim([0.0, 80.0])
+
+
+        #hide x's and y's labels 
+        self.axes.set_yticklabels([])
+        self.axes.set_xticklabels(np.linspace(0,360,10))
+        #self.axes.grid(b=True,which='major',color='r',linestyle='-')
+        #self.axes.minorticks_on()
+        #self.axes.grid(b=True,which='minor',linestyle='--')
+        self.axes.set_facecolor((1,1,1))
+
+
+        self.axes.scatter(self.pos, self.sonar)
         self.canvas.draw() #draw
 
 class textBox(QMainWindow):
@@ -148,6 +182,13 @@ class Window(QMainWindow):
         #push button config 
         button = QPushButton("Start", self) 
         button.move(600,200)
+        button.clicked.connect(self.plot)
+
+        button = QPushButton("LIDAR", self) 
+        button.move(600,300)
+
+        button = QPushButton("SONAR", self) 
+        button.move(600,350)
 
         #push button config 
         button = QPushButton("Stop", self) 
@@ -174,7 +215,7 @@ class Window(QMainWindow):
         self.newTb.show()
  
 
-    def plot(selfs):
+    def plot(self):
         
         """ 
             Sets timer and calls canvas plot internal function
@@ -187,7 +228,7 @@ class Window(QMainWindow):
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.canvas.plot())
-        self.timer.start(2.5) 
+        self.timer.start(2500) 
         
       
 
