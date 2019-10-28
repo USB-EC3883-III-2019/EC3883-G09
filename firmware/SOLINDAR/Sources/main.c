@@ -108,11 +108,14 @@ void main(void)
   /* Write your code here */
   /* For example: for(;;) { } */
   LED_Filter_SetVal();	//Turning the LED on to indicate that the filter is ON (default)
+  LED_Filter_NegVal();
   TI1_Disable();		//Start the program with interrupt off
   
   for (;;){
 	  i = 0;
 	  TI3_Enable();
+	  
+
     for(i;i<3;i++){
 /*###################################################################
 						Lidar Control
@@ -142,9 +145,8 @@ void main(void)
   	  //Echo
 	  while(echo_flg){}	//Wait for interrupt.
 	  echo_flg = !echo_flg;	//Restoring the flag
-	  if (count%2){
-		  son_dis_arr[i] = echo_time;
-	  }
+	  
+		son_dis_arr[i] = echo_time;
 	  
 /*###################################################################
 		     	       End of Sonar Control
@@ -155,7 +157,7 @@ void main(void)
 /*###################################################################
                           Motor Control
 ###################################################################*/
-/*	  
+	  
     //Applying signal
     MBit1_PutVal(steps[pos%8]);
     
@@ -183,13 +185,14 @@ void main(void)
     
     while(motor_flg){}
   	motor_flg = !motor_flg;	  
-    
+   
 /*###################################################################
 				    	End of Motor Control
 ###################################################################*/
 /*###################################################################
 				    	Filter (average)
 ###################################################################*/
+  Filter_Enable();
   if(fil_on_flg){
     //Filter on: calculate the average of measurements
     i = 0;    //Resetting counter

@@ -6,7 +6,7 @@
 **     Component   : AsynchroSerial
 **     Version     : Component 02.611, Driver 01.33, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-23, 08:32, # CodeGen: 4
+**     Date/Time   : 2019-10-28, 09:44, # CodeGen: 21
 **     Abstract    :
 **         This component "AsynchroSerial" implements an asynchronous serial
 **         communication. The component supports different settings of
@@ -53,6 +53,7 @@
 **
 **
 **     Contents    :
+**         Enable          - byte AS1_Enable(void);
 **         RecvChar        - byte AS1_RecvChar(AS1_TComData *Chr);
 **         SendChar        - byte AS1_SendChar(AS1_TComData Chr);
 **         RecvBlock       - byte AS1_RecvBlock(AS1_TComData *Ptr, word Size, word *Rcv);
@@ -141,6 +142,31 @@ static byte OutIndxR;                  /* Index for reading from output buffer *
 static byte OutIndxW;                  /* Index for writing to output buffer */
 static AS1_TComData OutBuffer[AS1_OUT_BUF_SIZE]; /* Output buffer for SCI commmunication */
 static bool OnFreeTxBuf_semaphore;     /* Disable the false calling of the OnFreeTxBuf event */
+
+/*
+** ===================================================================
+**     Method      :  AS1_Enable (component AsynchroSerial)
+**     Description :
+**         Enables the component - it starts the send and receive
+**         functions. Events may be generated
+**         ("DisableEvent"/"EnableEvent").
+**     Parameters  : None
+**     Returns     :
+**         ---             - Error code, possible codes:
+**                           ERR_OK - OK
+**                           ERR_SPEED - This device does not work in
+**                           the active speed mode
+** ===================================================================
+*/
+byte AS1_Enable(void)
+{
+  SCI1BDH = 0x00U;                     /* Set high divisor register (enable device) */
+  SCI1BDL = 0x0EU;                     /* Set low divisor register (enable device) */
+      /* SCI1C3: ORIE=1,NEIE=1,FEIE=1,PEIE=1 */
+  SCI1C3 |= 0x0FU;                     /* Enable error interrupts */
+  SCI1C2 |= (SCI1C2_TE_MASK | SCI1C2_RE_MASK | SCI1C2_RIE_MASK); /*  Enable transmitter, Enable receiver, Enable receiver interrupt */
+  return ERR_OK;                       /* OK */
+}
 
 /*
 ** ===================================================================

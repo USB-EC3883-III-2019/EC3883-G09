@@ -104,7 +104,9 @@ void Echo_OnCapture(void)
   /* Write your code here ... */
 	Echo_GetCaptureValue(&echo_time);	//Measure the time the signal echo was HIGH.
 	count++;
+	if (count%2){
 	echo_flg = !echo_flg;	//Brake while loop.
+	}
 	Echo_Reset();			//Reset timer.
 }
 
@@ -236,7 +238,7 @@ void Filter_OnInterrupt(void)
 {
 	fil_on_flg = !fil_on_flg;
 	LED_Filter_NegVal();
-	
+	Filter_Disable();
 }
 
 /*
