@@ -45,7 +45,7 @@ def receiveData(dataSerial):
         pos = f[0]
         s = (((f[1] & 0x7f) << 2) & 0x3fc) | ((f[2] & 0x60) >> 5) 
         l = (f[2] & 0x1f) << 7 | (f[3] & 0x7f)
-        pos = (96/360)*(pos)
+        pos = (360/96)*(pos)
         
         s *= 61.035156/58
         l  = (l*3*0.6)/(4096)
