@@ -6,7 +6,7 @@
 **     Component   : BitIO
 **     Version     : Component 02.086, Driver 03.27, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-23, 09:23, # CodeGen: 7
+**     Date/Time   : 2019-10-28, 08:56, # CodeGen: 18
 **     Abstract    :
 **         This component "BitIO" implements an one-bit input/output.
 **         It uses one bit/pin of a port.
@@ -17,21 +17,21 @@
 **             ----------------------------------------------------
 **                Number (on package)  |    Name
 **             ----------------------------------------------------
-**                       1             |  PTD1_KBI2P1_MOSI2
+**                       25            |  PTC2_TPM3CH2
 **             ----------------------------------------------------
 **
-**         Port name                   : PTD
+**         Port name                   : PTC
 **
-**         Bit number (in port)        : 1
-**         Bit mask of the port        : $0002
+**         Bit number (in port)        : 2
+**         Bit mask of the port        : $0004
 **
 **         Initial direction           : Output (direction can be changed)
 **         Safe mode                   : yes
 **         Initial output value        : 0
-**         Initial pull option         : off
+**         Initial pull option         : up
 **
-**         Port data register          : PTDD      [$0006]
-**         Port control register       : PTDDD     [$0007]
+**         Port data register          : PTCD      [$0004]
+**         Port control register       : PTCDD     [$0005]
 **
 **         Optimization for            : speed
 **     Contents    :
@@ -117,7 +117,7 @@
 ** ===================================================================
 */
 #define LED_Filter_GetVal() ( \
-    (bool)((getReg8(PTDD) & 0x02U))    /* Return port data */ \
+    (bool)((getReg8(PTCD) & 0x04U))    /* Return port data */ \
   )
 
 /*
@@ -159,8 +159,8 @@ void LED_Filter_PutVal(bool Val);
 ** ===================================================================
 */
 #define LED_Filter_ClrVal() ( \
-    (void)clrReg8Bits(PTDD, 0x02U)     /* PTDD1=0x00U */, \
-    (Shadow_PTD &= 0xFDU)              /* Set appropriate bit in shadow variable */ \
+    (void)clrReg8Bits(PTCD, 0x04U)     /* PTCD2=0x00U */, \
+    (Shadow_PTC &= 0xFBU)              /* Set appropriate bit in shadow variable */ \
   )
 
 /*
@@ -180,8 +180,8 @@ void LED_Filter_PutVal(bool Val);
 ** ===================================================================
 */
 #define LED_Filter_SetVal() ( \
-    (void)setReg8Bits(PTDD, 0x02U)     /* PTDD1=0x01U */, \
-    (Shadow_PTD |= 0x02U)              /* Set appropriate bit in shadow variable */ \
+    (void)setReg8Bits(PTCD, 0x04U)     /* PTCD2=0x01U */, \
+    (Shadow_PTC |= 0x04U)              /* Set appropriate bit in shadow variable */ \
   )
 
 /*
@@ -201,8 +201,8 @@ void LED_Filter_PutVal(bool Val);
 ** ===================================================================
 */
 #define LED_Filter_NegVal() ( \
-    (void)invertReg8Bits(PTDD, 0x02U)  /* PTDD1=invert */, \
-    (Shadow_PTD ^= 0x02U)              /* Set appropriate bit in shadow variable */ \
+    (void)setReg8(PTCTOG, 0x04U)       /* PTCTOG2=0x01U */, \
+    (Shadow_PTC ^= 0x04U)              /* Set appropriate bit in shadow variable */ \
   )
 
 /*

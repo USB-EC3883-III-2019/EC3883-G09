@@ -7,7 +7,7 @@
 **     Version     : Component 01.003, Driver 01.40, CPU db: 3.00.067
 **     Datasheet   : MC9S08QE128RM Rev. 2 6/2007
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-23, 10:21, # CodeGen: 10
+**     Date/Time   : 2019-10-28, 08:56, # CodeGen: 18
 **     Abstract    :
 **         This component "MC9S08QE128_80" contains initialization 
 **         of the CPU and provides basic methods and events for 
@@ -96,6 +96,7 @@ volatile byte CCR_lock;                /* Nesting level of critical regions */
 
 /*Definition of global shadow variables*/
 byte Shadow_PTD;
+byte Shadow_PTC;
 
 
 /*
@@ -227,20 +228,22 @@ void PE_low_level_init(void)
   setReg8Bits(PTFDD, 0x03U);            
   /* PTAD: PTAD7=0,PTAD6=0 */
   clrReg8Bits(PTAD, 0xC0U);             
-  /* PTAPE: PTAPE7=0,PTAPE6=0,PTAPE2=0 */
-  clrReg8Bits(PTAPE, 0xC4U);            
+  /* PTAPE: PTAPE7=0,PTAPE6=0,PTAPE2=1 */
+  clrSetReg8Bits(PTAPE, 0xC0U, 0x04U);  
   /* PTADD: PTADD7=1,PTADD6=1,PTADD2=0 */
   clrSetReg8Bits(PTADD, 0x04U, 0xC0U);  
-  /* PTDD: PTDD4=0,PTDD1=0 */
-  clrReg8Bits(PTDD, 0x12U);             
-  /* PTDPE: PTDPE4=0,PTDPE1=0 */
-  clrReg8Bits(PTDPE, 0x12U);            
-  /* PTDDD: PTDDD4=1,PTDDD1=1 */
-  setReg8Bits(PTDDD, 0x12U);            
-  /* PTCPE: PTCPE4=0 */
-  clrReg8Bits(PTCPE, 0x10U);            
-  /* PTCDD: PTCDD4=0 */
-  clrReg8Bits(PTCDD, 0x10U);            
+  /* PTDD: PTDD4=0 */
+  clrReg8Bits(PTDD, 0x10U);             
+  /* PTDPE: PTDPE4=0 */
+  clrReg8Bits(PTDPE, 0x10U);            
+  /* PTDDD: PTDDD4=1 */
+  setReg8Bits(PTDDD, 0x10U);            
+  /* PTCPE: PTCPE4=0,PTCPE2=1 */
+  clrSetReg8Bits(PTCPE, 0x10U, 0x04U);  
+  /* PTCD: PTCD2=0 */
+  clrReg8Bits(PTCD, 0x04U);             
+  /* PTCDD: PTCDD4=0,PTCDD2=1 */
+  clrSetReg8Bits(PTCDD, 0x10U, 0x04U);  
   /* APCTL1: ADPC6=1 */
   setReg8Bits(APCTL1, 0x40U);           
   /* PTBDD: PTBDD1=1,PTBDD0=0 */
@@ -303,7 +306,7 @@ void PE_low_level_init(void)
   AS1_Init();
   Filter_Init();
   /* ### BitIO "LED_Filter" init code ... */
-  Shadow_PTD &= 0xFDU;                 /* Initialize pin shadow variable bit */
+  Shadow_PTC &= 0xFBU;                 /* Initialize pin shadow variable bit */
   /* ### TimerInt "TI3" init code ... */
   TI3_Init();
   /* ### Free running 8-bit counter "FC321" init code ... */

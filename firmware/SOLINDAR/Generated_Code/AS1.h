@@ -6,7 +6,7 @@
 **     Component   : AsynchroSerial
 **     Version     : Component 02.611, Driver 01.33, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-23, 08:32, # CodeGen: 4
+**     Date/Time   : 2019-10-28, 09:44, # CodeGen: 21
 **     Abstract    :
 **         This component "AsynchroSerial" implements an asynchronous serial
 **         communication. The component supports different settings of
@@ -53,6 +53,7 @@
 **
 **
 **     Contents    :
+**         Enable          - byte AS1_Enable(void);
 **         RecvChar        - byte AS1_RecvChar(AS1_TComData *Chr);
 **         SendChar        - byte AS1_SendChar(AS1_TComData Chr);
 **         RecvBlock       - byte AS1_RecvBlock(AS1_TComData *Ptr, word Size, word *Rcv);
@@ -150,6 +151,23 @@
 
 extern byte AS1_OutLen;                /* Length of the output buffer content */
 extern byte AS1_InpLen;                /* Length of the input buffer content */
+
+byte AS1_Enable(void);
+/*
+** ===================================================================
+**     Method      :  AS1_Enable (component AsynchroSerial)
+**     Description :
+**         Enables the component - it starts the send and receive
+**         functions. Events may be generated
+**         ("DisableEvent"/"EnableEvent").
+**     Parameters  : None
+**     Returns     :
+**         ---             - Error code, possible codes:
+**                           ERR_OK - OK
+**                           ERR_SPEED - This device does not work in
+**                           the active speed mode
+** ===================================================================
+*/
 
 byte AS1_RecvChar(AS1_TComData *Chr);
 /*

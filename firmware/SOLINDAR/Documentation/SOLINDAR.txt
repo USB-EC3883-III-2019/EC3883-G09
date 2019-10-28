@@ -68,6 +68,8 @@ Module "Lidar"     (component ADC)
                 less than 16 bits. In addition, the user code dependency on <AD resolution> is eliminated.
 
 Module "AS1"       (component AsynchroSerial)
+   - AS1_Enable -Enables the component - it starts the send and receive functions. Events may be generated 
+                ("DisableEvent"/"EnableEvent").
    - AS1_RecvChar -If any data is received, this method returns one character, otherwise it returns an error code (it does not 
                 wait for data). This method is enabled only if the receiver property is enabled.  [Note:] Because the preferred 
                 method to handle error and break exception in the interrupt mode is to use events <OnError> and <OnBreak> the 
@@ -95,6 +97,8 @@ Module "AS1"       (component AsynchroSerial)
                 transmitter property is enabled.
 
 Module "Filter"    (component KBI)
+   - Filter_Enable -Enables the component - the external events are accepted.
+   - Filter_Disable -Disables the component - the external events are not accepted.
    - Filter_GetVal -Returns the value of pins
    - Filter_SetEdge -Sets the sensitive edge. If all selected pins don't have the same edge setting possibility, the method 
                 allows to set only those edges that are common (possible to set for all selected pins).

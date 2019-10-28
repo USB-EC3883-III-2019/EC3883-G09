@@ -6,7 +6,7 @@
 **     Component   : KBI
 **     Version     : Component 01.096, Driver 01.25, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-23, 09:20, # CodeGen: 6
+**     Date/Time   : 2019-10-28, 09:09, # CodeGen: 20
 **     Abstract    :
 **         This component "KBI" implements the Freescale Keyboard 
 **         Interrupt Module (KBI/KBD) which allows to catch events 
@@ -16,7 +16,7 @@
 **         Keyboard                    : KBI1 
 **         Used pins           
 **         Pin 0                       : PTA2_KBI1P2_SDA1_ADP2
-**         Pull resistor               : off
+**         Pull resistor               : up
 **         Generate interrupt on       : falling
 **         Interrupt service           : Enabled
 **         Interrupt                   : Vkeyboard
@@ -24,6 +24,8 @@
 **         Enable in init. code        : Yes
 **         Events enabled in init.     : Yes
 **     Contents    :
+**         Enable  - void Filter_Enable(void);
+**         Disable - void Filter_Disable(void);
 **         GetVal  - byte Filter_GetVal(void);
 **         SetEdge - byte Filter_SetEdge(byte edge);
 **
@@ -105,6 +107,34 @@ void Filter_Init(void);
 **         internal variables. The method is called automatically as a 
 **         part of the application initialization code.
 **         This method is internal. It is used by Processor Expert only.
+** ===================================================================
+*/
+
+/* KBI1PE: KBIPE2=1 */
+#define Filter_Enable() \
+  (((KBI1PE |= 0x04U), (KBI1SC_KBACK = 1U)), (KBI1SC_KBIE = 1U))
+
+/*
+** ===================================================================
+**     Method      :  Filter_Enable (component KBI)
+**     Description :
+**         Enables the component - the external events are accepted.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+/* KBI1PE: KBIPE2=0 */
+#define Filter_Disable() \
+  ((KBI1PE &= (byte)(~(byte)0x04U)), (KBI1SC_KBIE = 0U))
+
+/*
+** ===================================================================
+**     Method      :  Filter_Disable (component KBI)
+**     Description :
+**         Disables the component - the external events are not accepted.
+**     Parameters  : None
+**     Returns     : Nothing
 ** ===================================================================
 */
 

@@ -6,7 +6,7 @@
 **     Component   : KBI
 **     Version     : Component 01.096, Driver 01.25, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-23, 09:20, # CodeGen: 6
+**     Date/Time   : 2019-10-28, 09:09, # CodeGen: 20
 **     Abstract    :
 **         This component "KBI" implements the Freescale Keyboard 
 **         Interrupt Module (KBI/KBD) which allows to catch events 
@@ -16,7 +16,7 @@
 **         Keyboard                    : KBI1 
 **         Used pins           
 **         Pin 0                       : PTA2_KBI1P2_SDA1_ADP2
-**         Pull resistor               : off
+**         Pull resistor               : up
 **         Generate interrupt on       : falling
 **         Interrupt service           : Enabled
 **         Interrupt                   : Vkeyboard
@@ -24,6 +24,8 @@
 **         Enable in init. code        : Yes
 **         Events enabled in init.     : Yes
 **     Contents    :
+**         Enable  - void Filter_Enable(void);
+**         Disable - void Filter_Disable(void);
 **         GetVal  - byte Filter_GetVal(void);
 **         SetEdge - byte Filter_SetEdge(byte edge);
 **
@@ -78,6 +80,36 @@
 #include "Filter.h"
 
 
+
+/*
+** ===================================================================
+**     Method      :  Filter_Enable (component KBI)
+**     Description :
+**         Enables the component - the external events are accepted.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+/*
+void Filter_Enable(void)
+
+**      This method is implemented as macro. See Filter.h file.      **
+*/
+
+/*
+** ===================================================================
+**     Method      :  Filter_Disable (component KBI)
+**     Description :
+**         Disables the component - the external events are not accepted.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+/*
+void Filter_Disable(void)
+
+**      This method is implemented as macro. See Filter.h file.      **
+*/
 
 /*
 ** ===================================================================
@@ -139,9 +171,12 @@ byte Filter_GetVal(void)
 */
 byte Filter_SetEdge(byte edge)
 {
+  byte EnDi;
+
   if ((edge > 4U) || (edge == 2U)) {   /* If parameter is out of range */
     return ERR_RANGE;                  /* ....then return error */
   }
+  EnDi = KBI1SC_KBIE;
   KBI1SC_KBIE = 0U;                    /* Disable device */
   if ((edge == 3U) || (edge == 4U)) {  /* Level selected */
     KBI1SC_KBIMOD = 0x01U;             /* Set the level */
@@ -165,8 +200,10 @@ byte Filter_SetEdge(byte edge)
       KBI1ES |= 0x04U;                 /* The rising edge */
     }
   }
-  KBI1SC_KBACK = 0x01U;                /* Clear the interrupt flag */
-  KBI1SC_KBIE = 0x01U;                 /* Enable device */
+  if (EnDi) {                          /* Has to be enabled ? */
+    KBI1SC_KBACK = 0x01U;              /* Clear the interrupt flag */
+    KBI1SC_KBIE = 0x01U;               /* Enable device */
+  }
   return ERR_OK;
 }
 
