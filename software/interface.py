@@ -161,6 +161,7 @@ class Window(QMainWindow):
         self.file_menu.addAction('&Save As', self.fileSave,
                                  QtCore.Qt.CTRL + QtCore.Qt.Key_S)
         self.menuBar().addMenu(self.file_menu)
+        
         #Help option
         self.help_menu = QtWidgets.QMenu('&Help', self)
         self.menuBar().addSeparator()
@@ -188,6 +189,9 @@ class Window(QMainWindow):
         button.move(600,300)
 
         button = QPushButton("SONAR", self) 
+        button.move(600,350)
+        
+        button = QPushButton("SOLINDAR", self) 
         button.move(600,350)
 
         #push button config 
