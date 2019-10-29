@@ -33,7 +33,6 @@ class MplCanvas(FigureCanvas):
     def __init__(self, parent=None, width=1, height=1, dpi=100):
 
         #Plot config
-        import math
         self.fig = plt.figure()  
         FigureCanvas.__init__(self, self.fig)
         self.axes = self.fig.add_subplot(111, projection="polar")
@@ -45,10 +44,6 @@ class MplCanvas(FigureCanvas):
         
 
         #Grid configuration
-        
-        #self.axes.grid(b=True,which='major',color='r',linestyle='-')
-        #self.axes.minorticks_on()
-        #self.axes.grid(b=True,which='minor',linestyle='--')
         self.axes.set_facecolor((1,1,1))
 
         self.canvas = FigureCanvas(self.fig)
@@ -59,11 +54,18 @@ class MplCanvas(FigureCanvas):
         self.canvas.setStyleSheet("background-color:transparent;")
         self.axes.set_ylim([0.0, 80.0])
         self.axes.set_xlim([math.pi*(-30)/180, math.pi*(210)/180])
+
+
+        #---------------------------------------------------
+        # Data and serial conf 
+        # --------------------------------------------------
+        #self.fusion = {}
         self.dataSerial = openPort()
         
-        self.sonar = []
-        self.lidar = []
-        self.pos = []
+        self.update_data_f = False
+        self.sonar = {}
+        self.lidar = {}
+        
         
     
     def plot(self):
@@ -75,23 +77,22 @@ class MplCanvas(FigureCanvas):
 
         """
         def _plot():
-            self.update_figure()
+            self.update_figure(channels)
         return _plot
 
     def update_figure(self):
-        import math
+        
         self.axes.clear()
-
+        
          #empty array to receive data from DEM0QE
         data = receiveData(self.dataSerial)
-        if len(self.pos) >= 5: 
-            self.pos.pop(0)
-            self.sonar.pop(0)
-            self.lidar.pop(0)
+        self.sonar[data[0]] = data[1]
+        self.lidar[data[0]] = data[2]
         
-        self.pos.append(data[0])
-        self.sonar.append(data[1])
-        self.lidar.append(data[2])
+        #sigma1 = 0**-2
+        #sigma2 = 0**-2
+        #sigma3 = 1/(sigma1 + sigma2)
+        #self.fusion[data[0]] = (sigma3)*(sigma1*data[1] + sigma2*data[2])
 
         self.axes.set_thetamin(-30)
         self.axes.set_thetamax(210)
@@ -106,8 +107,13 @@ class MplCanvas(FigureCanvas):
         #self.axes.grid(b=True,which='minor',linestyle='--')
         self.axes.set_facecolor((1,1,1))
 
-
-        self.axes.scatter(self.pos, self.sonar)
+        posData = list(self.sonar)
+        sonarData = list(self.sonar.values())
+        lidarData = list(self.lidar.values())
+        #sonarlidarData = list(self.sonarlidarData.values())
+        if channels[0]: self.axes.scatter(posData, sonarData)
+        if channels[1]: self.axes.scatter(posData, lidarData, color='r' )
+        #if channels[2]: self.axes.scatter(posData, lidarData, color='y' )
         self.canvas.draw() #draw
 
 class textBox(QMainWindow):
@@ -180,24 +186,31 @@ class Window(QMainWindow):
         self.width = 800 
         self.height = 600 
         
+
+        self.channels = [True,True,True]
         #push button config 
         button = QPushButton("Start", self) 
         button.move(600,200)
         button.clicked.connect(self.plot)
 
-        button = QPushButton("LIDAR", self) 
-        button.move(600,300)
-
-        button = QPushButton("SONAR", self) 
-        button.move(600,350)
-        
-        button = QPushButton("SOLINDAR", self) 
-        button.move(600,350)
-
-        #push button config 
         button = QPushButton("Stop", self) 
         button.move(600,250)
         button.clicked.connect(self.stop)
+
+        button = QPushButton("LIDAR", self) 
+        button.move(600,300)
+        button.clicked.connect(self.__plot__)
+
+        button = QPushButton("SONAR", self) 
+        button.move(600,350)
+        button.clicked.connect(self.__plot__)
+        
+        button = QPushButton("SOLINDAR", self) 
+        button.move(600,400)
+        button.clicked.connect(self.__plot__)
+
+        #push button config 
+        
 
 
         self.setWindowIcon(QtGui.QIcon("icon.png"))
@@ -205,6 +218,13 @@ class Window(QMainWindow):
 
 
         self.InitWindow()
+
+    def __plot__(self):
+
+        def __plot():
+            self.canvas.plot(self.channels)
+
+        return __plot
 
     def InitWindow(self):
         self.setWindowTitle(self.title) #show windows title
@@ -231,8 +251,8 @@ class Window(QMainWindow):
             self.timer.deleteLater()
 
         self.timer = QtCore.QTimer(self)
-        self.timer.timeout.connect(self.canvas.plot())
-        self.timer.start(2500) 
+        self.timer.timeout.connect(self.canvas.plot(self.channels))
+        self.timer.start(16) 
         
       
 

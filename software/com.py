@@ -45,11 +45,14 @@ def receiveData(dataSerial):
         pos = f[0]
         s = (((f[1] & 0x7f) << 2) & 0x3fc) | ((f[2] & 0x60) >> 5) 
         l = (f[2] & 0x1f) << 7 | (f[3] & 0x7f)
-        pos = (360/96)*(pos)
-        
+        raw_pos = pos
+        pos = math.pi*((360/96)*(pos) - 30)/180
         s *= 61.035156/58
-        l  = (l*3*0.6)/(4096)
+        s = min(s,80)
+        l  = (l*3)/(4096*0.6)
+        print(l)
         l = convertLidar(l)
+        l = min(l,80)
         print(pos,s,l)
 
     else:
