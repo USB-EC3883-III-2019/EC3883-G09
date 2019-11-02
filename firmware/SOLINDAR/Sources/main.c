@@ -93,13 +93,13 @@ void main(void)
   /*
    * dir_flg   : direction flag. TRUE for clockwise, FALSE for counterclockwise.
    */
-  unsigned int lid_vol_arr[3], lid_vol;
+  unsigned int lid_vol_arr[2], lid_vol;
   /*
    * lid_vol_arr: lidar voltage array. Measurements of LIDAR.
    * lid_vol    : lidar voltage. Voltage average of LIDAR.
    */
   word ptr;
-
+ 
 		  
   /*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
   PE_low_level_init();
@@ -116,7 +116,7 @@ void main(void)
 	  TI3_Enable();
 	  
 
-    for(i;i<3;i++){
+    for(i;i<2;i++){
 /*###################################################################
 						Lidar Control
 ###################################################################*/
@@ -198,16 +198,16 @@ void main(void)
     i = 0;    //Resetting counter
     lid_vol = 0;  //Reseting output value
     son_dis = 0;
-    for(i; i < 3 ; i++){
+    for(i; i < 2 ; i++){
       lid_vol += lid_vol_arr[i];  //Summing up all the measurements 
       son_dis += son_dis_arr[i];
     }
-    lid_vol = lid_vol/i;   //Dividing by the number of measurements to complete the average process
-    son_dis = son_dis/i;
+    lid_vol = lid_vol/2;   //Dividing by the number of measurements to complete the average process
+    son_dis = son_dis/2;
   }else{
     //Filter off: asign the last measurement
-    lid_vol = lid_vol_arr[2];
-    son_dis = son_dis_arr[2];
+    lid_vol = lid_vol_arr[1];
+    son_dis = son_dis_arr[1];
   }
 /*###################################################################
 				    End of Filter (average)
@@ -242,7 +242,7 @@ void main(void)
 ###################################################################*/    
   
     AS1_SendBlock(frame,sizeof(frame),&ptr);
-  
+
   }
 
   /*** Don't write any code pass this line, or it will be deleted during code generation. ***/
