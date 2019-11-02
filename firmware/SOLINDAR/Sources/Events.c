@@ -105,9 +105,11 @@ void Echo_OnCapture(void)
 	Echo_GetCaptureValue(&echo_time);	//Measure the time the signal echo was HIGH.
 	count++;
 	if (count%2){
-	echo_flg = !echo_flg;	//Brake while loop.
+	echo_flg = !echo_flg;	//Brake while loop on falling edge.
+	count = 1;
 	}
-	Echo_Reset();			//Reset timer.
+	while(Echo_Reset()!=ERR_OK);	//Reset timer.
+				
 }
 
 /*
