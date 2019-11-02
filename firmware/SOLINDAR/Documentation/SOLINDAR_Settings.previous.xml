@@ -1055,7 +1055,7 @@ autoselected pull
         <Interrupt v="Vtpm1ch0" />
         <Interrupt_priority v="medium priority" />
       </boolgroup>
-      <Interrupt_period v="100 &amp;#181;s" />
+      <Interrupt_period v="50 &amp;#181;s" />
       <Same_period_in_modes v="yes" />
       <Component_uses_entire_timer v="no" />
       <group name="Initialization">
@@ -1104,7 +1104,7 @@ autoselected pull
         <Interrupt v="Vrtc" />
         <Interrupt_priority v="medium priority" />
       </boolgroup>
-      <Interrupt_period v="2500 ms" />
+      <Interrupt_period v="150 ms" />
       <Same_period_in_modes v="yes" />
       <Component_uses_entire_timer v="no" />
       <group name="Initialization">
@@ -1215,7 +1215,7 @@ Autoselect
 
         <EmptySection_DummyValue />
       </A_D_resolution>
-      <Conversion_time v="3.655752 &amp;#181;s" />
+      <Conversion_time v="46 &amp;#181;s" />
       <Low_power_mode v="Disabled" />
       <Sample_time v="short" />
       <boolgroup name="Internal trigger" v="Disabled" />
@@ -1314,7 +1314,7 @@ Autoselect
       </group>
     </Properties>
     <Methods>
-      <Enable v="don&amp;apos;t generate code" />
+      <Enable v="generate code" />
       <Disable v="don&amp;apos;t generate code" />
       <EnableEvent v="don&amp;apos;t generate code" />
       <DisableEvent v="don&amp;apos;t generate code" />
@@ -1457,7 +1457,7 @@ Autoselect
         <Interrupt v="Vtpm1ch1" />
         <Interrupt_priority v="medium priority" />
       </boolgroup>
-      <Interrupt_period v="55 ms" />
+      <Interrupt_period v="60 ms" />
       <Same_period_in_modes v="yes" />
       <Component_uses_entire_timer v="no" />
       <group name="Initialization">

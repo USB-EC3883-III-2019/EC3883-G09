@@ -49,11 +49,11 @@ def receiveData(dataSerial):
         pos = math.pi*((360/96)*(pos) - 30)/180
         s *= 61.035156/58
         s = min(s,80)
-        l  = (l*3)/(4096*0.6)
-        print(l)
+        #l  = (l*3)/(4096*0.6)
+        
         l = convertLidar(l)
         l = min(l,80)
-        print(pos,s,l)
+        
 
     else:
         synchronize(dataSerial)
@@ -62,7 +62,10 @@ def receiveData(dataSerial):
     
 def convertLidar(x):
     #return 21.734*(x**4) - 138.92*(x**3) + 330.98*(x**2) - 361.52*(x) + 173.81
-    import math 
-    return 33.2*(math.exp(-1.33*x))
+    
+    #import math 
+    #return 1.4*33.2*(math.exp(-1.33*x))
 
+    #return 109750*(x)**(-1.23)     #Best option
+    return 19634*(x**(-1.011))
     

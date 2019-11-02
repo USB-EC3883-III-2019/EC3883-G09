@@ -1,6 +1,6 @@
 # Motor
 Q1 -> PTF0
-Q2 -> PTF1
+Q2 -> PTF1		OJO CAMBIAAAAR
 Q3 -> PTA6
 Q4 -> PTA7
 
@@ -14,3 +14,5 @@ Echo -> PTC4
 # Lidar
 ADC -> PTB2
 	Esta conectado con un divisor de voltaje 
+
+

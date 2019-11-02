@@ -1055,7 +1055,7 @@ autoselected pull
         <Interrupt v="Vtpm1ch0" />
         <Interrupt_priority v="medium priority" />
       </boolgroup>
-      <Interrupt_period v="100 &amp;#181;s" />
+      <Interrupt_period v="50 &amp;#181;s" />
       <Same_period_in_modes v="yes" />
       <Component_uses_entire_timer v="no" />
       <group name="Initialization">
@@ -1104,7 +1104,7 @@ autoselected pull
         <Interrupt v="Vrtc" />
         <Interrupt_priority v="medium priority" />
       </boolgroup>
-      <Interrupt_period v="2500 ms" />
+      <Interrupt_period v="150 ms" />
       <Same_period_in_modes v="yes" />
       <Component_uses_entire_timer v="no" />
       <group name="Initialization">
@@ -1215,7 +1215,7 @@ Autoselect
 
         <EmptySection_DummyValue />
       </A_D_resolution>
-      <Conversion_time v="3.655752 &amp;#181;s" />
+      <Conversion_time v="46 &amp;#181;s" />
       <Low_power_mode v="Disabled" />
       <Sample_time v="short" />
       <boolgroup name="Internal trigger" v="Disabled" />
@@ -1457,7 +1457,7 @@ Autoselect
         <Interrupt v="Vtpm1ch1" />
         <Interrupt_priority v="medium priority" />
       </boolgroup>
-      <Interrupt_period v="55 ms" />
+      <Interrupt_period v="60 ms" />
       <Same_period_in_modes v="yes" />
       <Component_uses_entire_timer v="no" />
       <group name="Initialization">
@@ -1494,46 +1494,6 @@ Autoselect
         <Event_procedure_name v="TI3_OnInterrupt" />
         <Priority v="same as interrupt" />
       </event>
-    </Events>
-  </Bean>
-  <Bean name="FC321" type="FreeCntr32">
-    <Enabled v="Y" />
-    <Properties>
-      <Component_name v="FC321" />
-      <Periodic_interrupt_source v="TPM20" />
-      <Counter v="TPM2" />
-      <boolgroup name="Interrupt service/event" v="Enabled">
-        <Interrupt v="Vtpm2ch0" />
-        <Interrupt_priority v="medium priority" />
-      </boolgroup>
-      <Resolution v="100 &amp;#181;s" />
-      <Same_resolution_in_modes v="yes" />
-      <Component_uses_entire_timer v="no" />
-      <group name="Initialization">
-        <Enabled_in_init__code v="yes" />
-      </group>
-      <group name="CPU clock/speed selection">
-        <High_speed_mode v="This component enabled" />
-        <Low_speed_mode v="This component disabled" />
-        <Slow_speed_mode v="This component disabled" />
-      </group>
-    </Properties>
-    <Methods>
-      <Enable v="don&amp;apos;t generate code" />
-      <Disable v="don&amp;apos;t generate code" />
-      <Reset v="generate code" />
-      <GetTicks16 v="don&amp;apos;t generate code" />
-      <GetTicks32 v="don&amp;apos;t generate code" />
-      <GetTicks64 v="don&amp;apos;t generate code" />
-      <GetTimeUS v="generate code" />
-      <GetTimeMS v="generate code" />
-      <GetTimeSec v="don&amp;apos;t generate code" />
-      <GetTimeReal v="don&amp;apos;t generate code" />
-    </Methods>
-    <Events>
-      <Event_module_name v="Events" />
-      <event name="BeforeNewSpeed" v="don&amp;apos;t generate code" />
-      <event name="AfterNewSpeed" v="don&amp;apos;t generate code" />
     </Events>
   </Bean>
 </PE_PROJECT_SETTINGS_DOCUMENTATION>

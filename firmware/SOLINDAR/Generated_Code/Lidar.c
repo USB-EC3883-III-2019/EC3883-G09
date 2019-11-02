@@ -6,7 +6,7 @@
 **     Component   : ADC
 **     Version     : Component 01.690, Driver 01.30, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-23, 08:32, # CodeGen: 4
+**     Date/Time   : 2019-11-02, 18:30, # CodeGen: 32
 **     Abstract    :
 **         This device "ADC" implements an A/D converter,
 **         its control methods and interrupt/event handling procedure.
@@ -22,7 +22,7 @@
 **              A/D channel (pin)                          : PTB2_KBI1P6_SPSCK1_ADP6
 **              A/D channel (pin) signal                   : 
 **          A/D resolution                                 : Autoselect
-**          Conversion time                                : 3.655752 µs
+**          Conversion time                                : 46 µs
 **          Low-power mode                                 : Disabled
 **          Sample time                                    : short
 **          Internal trigger                               : Disabled
@@ -295,8 +295,8 @@ void Lidar_Init(void)
   setReg8(ADCSC2, 0x00U);              /* Disable HW trigger and autocompare */ 
   OutFlg = FALSE;                      /* No measured value */
   ModeFlg = STOP;                      /* Device isn't running */
-  /* ADCCFG: ADLPC=0,ADIV1=1,ADIV0=0,ADLSMP=0,MODE1=0,MODE0=1,ADICLK1=0,ADICLK0=0 */
-  setReg8(ADCCFG, 0x44U);              /* Set prescaler bits */ 
+  /* ADCCFG: ADLPC=0,ADIV1=1,ADIV0=1,ADLSMP=0,MODE1=0,MODE0=1,ADICLK1=1,ADICLK0=1 */
+  setReg8(ADCCFG, 0x67U);              /* Set prescaler bits */ 
 }
 
 

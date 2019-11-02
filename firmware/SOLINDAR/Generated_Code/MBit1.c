@@ -6,7 +6,7 @@
 **     Component   : MultiBitIO
 **     Version     : Component 01.000, Driver 01.01, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-23, 08:32, # CodeGen: 4
+**     Date/Time   : 2019-11-02, 18:30, # CodeGen: 32
 **     Abstract    :
 **         This bean "MultiBitIO" implements a multi-bit input/output.
 **         It assembles alone pins into 1-8bit software port
