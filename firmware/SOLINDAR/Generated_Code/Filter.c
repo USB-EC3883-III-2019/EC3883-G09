@@ -6,7 +6,7 @@
 **     Component   : KBI
 **     Version     : Component 01.096, Driver 01.25, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-10-28, 09:09, # CodeGen: 20
+**     Date/Time   : 2019-11-02, 18:30, # CodeGen: 32
 **     Abstract    :
 **         This component "KBI" implements the Freescale Keyboard 
 **         Interrupt Module (KBI/KBD) which allows to catch events 

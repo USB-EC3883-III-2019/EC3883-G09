@@ -124,13 +124,6 @@ Module "TI3"       (component TimerInt)
                 .
    - TI3_Disable -This method disables the component - it stops the timer. No events will be generated.
 
-Module "FC321"     (component FreeCntr32)
-   - FC321_Reset -This method clears the counter.
-   - FC321_GetTimeUS -This method returns the time (as a 16-bit unsigned integer) in microseconds since the last resetting 
-                after the last reset.
-   - FC321_GetTimeMS -This method returns the time (as a 16-bit unsigned integer) in milliseconds since the last resetting 
-                after the last reset.
-
 Module "Cpu"       (component MC9S08QE128_80)
    - Cpu_EnableInt -Enables maskable interrupts
    - Cpu_DisableInt -Disables maskable interrupts

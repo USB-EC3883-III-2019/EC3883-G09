@@ -34,7 +34,6 @@
 #include "PE_Error.h"
 #include "PE_Const.h"
 #include "IO_Map.h"
-#include "PE_Timer.h"
 #include "MBit1.h"
 #include "Inhr1.h"
 #include "Inhr2.h"
@@ -49,7 +48,6 @@
 #include "Filter.h"
 #include "LED_Filter.h"
 #include "TI3.h"
-#include "FC321.h"
 
 
 void TI1_OnInterrupt(void);
