@@ -37,6 +37,12 @@
 #include "PC.h"
 #include "IR.h"
 #include "Bit1.h"
+#include "MBit1.h"
+#include "Inhr1.h"
+#include "Inhr2.h"
+#include "Inhr3.h"
+#include "Inhr4.h"
+#include "TI1.h"
 
 
 void IR_OnError(void);
@@ -186,6 +192,22 @@ void IR_OnFreeTxBuf(void);
 **     Description :
 **         This event is called after the last character in output
 **         buffer is transmitted.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+void TI1_OnInterrupt(void);
+/*
+** ===================================================================
+**     Event       :  TI1_OnInterrupt (module Events)
+**
+**     Component   :  TI1 [TimerInt]
+**     Description :
+**         When a timer interrupt occurs this event is called (only
+**         when the component is enabled - <Enable> and the events are
+**         enabled - <EnableEvent>). This event is enabled only if a
+**         <interrupt service/event> is enabled.
 **     Parameters  : None
 **     Returns     : Nothing
 ** ===================================================================

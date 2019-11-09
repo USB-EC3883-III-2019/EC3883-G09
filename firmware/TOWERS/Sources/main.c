@@ -33,6 +33,12 @@
 #include "PC.h"
 #include "IR.h"
 #include "Bit1.h"
+#include "MBit1.h"
+#include "Inhr1.h"
+#include "Inhr2.h"
+#include "Inhr3.h"
+#include "Inhr4.h"
+#include "TI1.h"
 /* Include shared modules, which are used for whole project */
 #include "PE_Types.h"
 #include "PE_Error.h"
@@ -40,9 +46,9 @@
 #include "IO_Map.h"
 
 /* User includes (#include below this line is not maintained by Processor Expert) */
-#define MAX_POS 64   
 
 //Constants
+#define MAX_POS 64
 //Array for half steps
 const char steps[] = { 10,     //1010
                         8,     //1000
@@ -53,9 +59,14 @@ const char steps[] = { 10,     //1010
                         6,     //0110
                         2,     //0010
 };
-char z1, z2, z3, z4;
+//Global variables
+bool motorFlag = TRUE;
+
 
 char determineZone(char frame[]){
+	//This function determines the zone that the tower
+	//is going to look for the other one to retransmit 
+	//the message and adjusts the frame.
 	
 	char zone;
 	if(frame[2] > 7){
@@ -86,6 +97,29 @@ char determineZone(char frame[]){
 	return zone;
 }
 
+void moveToZone(char zoneNumber){
+	//This function moves the motor to the beginning 
+	//of the corresponding zone
+	
+	if(zoneNumber != 1){
+		//If already in zone 1, don't move. Otherwise, move.
+		
+		char i = 0, stepsOffset = (zoneNumber - 1)*12;	//12 is the number of half steps per zone 
+		
+		TI1_Enable();
+		for(i; i < stepsOffset; i++){
+			
+			MBit1_PutVal(steps[i%8]);
+			while(motorFlag){}
+			motorFlag = TRUE;
+		}
+		TI1_Disable();
+		motorFlag = TRUE;
+	}
+}
+
+
+
 void main(void)
 {
   /* Write your local variable definition here */
@@ -98,10 +132,12 @@ void main(void)
   /*** End of Processor Expert internal initialization.                    ***/
 
   /* Write your code here */
+  
+  	  zone = determineZone(frame);	//Determine the zone of the other tower's receiver
+  	  moveToZone(zone);				//Move to the specified zone
   for(;;) {
 	  
 	  //if (master)
-	  zone = determineZone(frame);	//Determine the zone to move to
 	  
   }
 
