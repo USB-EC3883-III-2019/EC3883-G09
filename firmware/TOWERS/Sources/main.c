@@ -53,13 +53,46 @@ const char steps[] = { 10,     //1010
                         6,     //0110
                         2,     //0010
 };
+char z1, z2, z3, z4;
+
+char determineZone(char frame[]){
+	
+	char zone;
+	if(frame[2] > 7){
+		//TOWER 1
+		zone = frame[2] >> 3;
+		frame[2] = frame[2] & 0b00000111;
+	}else{
+		if(frame[2] < 8 && frame[2] > 0){
+			//TOWER 2		
+			zone = frame[2];
+			frame[2] = 0b00000000;
+		}else{
+			if(frame[3] > 7){
+					//TOWER 3
+					zone = frame[3] >> 3;
+					frame[3] = frame[3] & 0b00000111;
+
+			}else{
+				if(frame[3] < 8 && frame[3] > 0){
+					//TOWER 4		
+					zone = frame[3];
+					frame[3] = 0b00000000;
+				}
+			}
+		}
+	}
+	
+	return zone;
+}
 
 void main(void)
 {
   /* Write your local variable definition here */
-	char msg[4];
+	char frame[4], zone;
 	word ptr;
 
+    
   /*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
   PE_low_level_init();
   /*** End of Processor Expert internal initialization.                    ***/
@@ -67,9 +100,8 @@ void main(void)
   /* Write your code here */
   for(;;) {
 	  
-	  
-	  Bit1_SetVal();
-	  
+	  //if (master)
+	  zone = determineZone(frame);	//Determine the zone to move to
 	  
   }
 
