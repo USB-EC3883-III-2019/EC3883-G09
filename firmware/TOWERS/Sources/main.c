@@ -97,14 +97,14 @@ char determineZone(char frame[]){
 	return zone;
 }
 
-void moveToZone(char zoneNumber){
-	//This function moves the motor to the beginning 
+void move2Zone(char zoneNumber){
+	//This function moves the motor to the middle 
 	//of the corresponding zone
 	
 	if(zoneNumber != 1){
 		//If already in zone 1, don't move. Otherwise, move.
 		
-		char i = 0, stepsOffset = (zoneNumber - 1)*12;	//12 is the number of half steps per zone 
+		char i = 0, stepsOffset = (zoneNumber - 1)*12 + 6;	//12 is the number of half steps per zone 
 		
 		TI1_Enable();
 		for(i; i < stepsOffset; i++){
@@ -118,12 +118,10 @@ void moveToZone(char zoneNumber){
 	}
 }
 
-
-
 void main(void)
 {
   /* Write your local variable definition here */
-	char frame[4], zone;
+	char frame[4], zone, error;
 	word ptr;
 
     
@@ -132,13 +130,19 @@ void main(void)
   /*** End of Processor Expert internal initialization.                    ***/
 
   /* Write your code here */
+
   
-  	  zone = determineZone(frame);	//Determine the zone of the other tower's receiver
-  	  moveToZone(zone);				//Move to the specified zone
+  do{
+	  error = PC_RecvBlock(frame,sizeof(frame),&ptr);
+  }while(error != ERR_OK);
+  
+  zone = determineZone(frame);	//Determine the zone of the other tower's receiver
+  move2Zone(zone);				//Move to the specified zone
+
   for(;;) {
-	  
-	  //if (master)
-	  
+  
+  //if (master)
+  
   }
 
   /*** Don't write any code pass this line, or it will be deleted during code generation. ***/
