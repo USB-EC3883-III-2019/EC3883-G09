@@ -38,8 +38,11 @@
 #include "Inhr2.h"
 #include "Inhr3.h"
 #include "Inhr4.h"
-#include "TI1.h"
+#include "MotorInt.h"
 #include "PWM1.h"
+#include "LIDAR.h"
+#include "LIDARInt.h"
+#include "MotorInt2.h"
 /* Include shared modules, which are used for whole project */
 #include "PE_Types.h"
 #include "PE_Error.h"
@@ -61,7 +64,7 @@ const char steps[] = { 10,     //1010
                         2,     //0010
 };
 //Global variables
-bool motorFlag = TRUE;
+bool motorFlag = TRUE, lidarFlag = TRUE;
 
 
 char determineZone(char frame[]){
@@ -105,18 +108,100 @@ void move2Zone(char zoneNumber){
 	if(zoneNumber != 1){
 		//If already in zone 1, don't move. Otherwise, move.
 		
-		char i = 0, stepsOffset = (zoneNumber - 1)*12 + 6;	//12 is the number of half steps per zone 
+		char i = 0, stepsOffset = (zoneNumber - 1)*12;	//12 is the number of half steps per zone 
 		
-		TI1_Enable();
+		MotorInt_Enable();
 		for(i; i < stepsOffset; i++){
 			
-			MBit1_PutVal(steps[i%8]);
 			while(motorFlag){}
+			MBit1_PutVal(steps[i%8]);
 			motorFlag = TRUE;
 		}
-		TI1_Disable();
+		MotorInt_Disable();
 		motorFlag = TRUE;
 	}
+}
+
+int measureLidar(){
+	//This function handles the LIDAR measurements.
+	//It takes 8 samples in each position and
+	//calculates the average.
+	
+	unsigned int measurement, accumulator = 0;
+	char i = 0;
+	
+	LIDARInt_Enable();
+	
+	for(i; i < 8; i++){
+		while(lidarFlag){}	//Wait for interrupt.
+		LIDAR_Measure(TRUE);
+		LIDAR_GetValue(&measurement);
+		accumulator += measurement;
+		lidarFlag = TRUE;	//Restoring the flag.
+	}
+	
+	LIDARInt_Disable();
+	
+	return accumulator/8;	
+}
+
+void motorStep(char zoneNumber, char i){
+	//This function handles the motor's motion
+	
+	char position = (zoneNumber - 1)*12 + i;
+	
+	while(motorFlag){}
+	MBit1_PutVal(steps[position%8]);
+	motorFlag = TRUE;
+	
+}
+
+char findReceiver(char zoneNumber){
+	//With this function, the tower scans the zone to 
+	//determine the receiver's location
+	//which is the closest object. 
+	//Since the LIDAR varies as 1/x,
+	//we have to look for the largest
+	//measurement.
+	
+	char position = 0, i = 0;
+	unsigned int largest = 0, measurement;
+	
+	MotorInt2_Enable();
+	for(i; i < 12; i++){
+		
+		measurement = measureLidar();
+		
+		if(measurement > largest){
+			largest = measurement;
+			position = i;
+		}
+		
+		motorStep(zoneNumber, i);
+		
+	}
+	MotorInt2_Disable();
+	return position;
+} 
+
+void move2Receiver(char receiver, char zoneNumber){
+	//This function moves the tower
+	//to establish sight line between
+	//transmitter and receiver
+	
+	char currentPosition = zoneNumber*12 - 1, finalPosition = currentPosition - receiver;
+	
+	MotorInt_Enable();	//30ms
+	
+	for (currentPosition; currentPosition > finalPosition; currentPosition--){
+		
+		while(motorFlag){}
+		MBit1_PutVal(steps[currentPosition%8]);
+		motorFlag = TRUE;
+		
+	}
+	
+	MotorInt_Disable();	//30ms
 }
 
 char sync(char auxFrame[]){
@@ -131,10 +216,11 @@ char sync(char auxFrame[]){
 }
 
 
+
 void main(void)
 {
   /* Write your local variable definition here */
-	char frame[4], auxFrame[7], offset, i, zone, error;
+	char frame[4], auxFrame[7], offset, i, zone, receiverPosition, error;
 	word ptr;
 
     
@@ -155,9 +241,11 @@ void main(void)
   
   	  //Set flag to zero
   
-  	  //Move to zone
-	  zone = determineZone(frame);	//Determine the zone of the other tower's receiver
-	  move2Zone(zone);				//Move to the specified zone
+  	  //Move tower
+	  zone = determineZone(frame);	//Determine the zone of the other tower's receiver.
+	  move2Zone(zone);				//Move to the specified zone.
+	  receiverPosition = findReceiver(zone);	//Determine the receiver's position.
+	  move2Receiver(receiverPosition, zone);	//Move the tower to the receiver's position.
 	  
 	  for(;;){
 		  
@@ -191,9 +279,11 @@ void main(void)
 	  
 	  PC_SendBlock(frame, sizeof(frame), &ptr);	//When message is received, send it to PC
 
-  	  //Move to zone
-	  zone = determineZone(frame);	//Determine the zone of the other tower's receiver
-	  move2Zone(zone);				//Move to the specified zone
+  	  //Move tower
+	  zone = determineZone(frame);	//Determine the zone of the other tower's receiver.
+	  move2Zone(zone);				//Move to the specified zone.
+	  receiverPosition = findReceiver(zone);	//Determine the receiver's position.
+	  move2Receiver(receiverPosition, zone);	//Move the tower to the receiver's position.
 	  
 	  for(;;){
 		  IR_SendBlock(frame, sizeof(frame), &ptr);	//Send message via IR

@@ -43,8 +43,11 @@
 #include "Inhr2.h"
 #include "Inhr3.h"
 #include "Inhr4.h"
-#include "TI1.h"
+#include "MotorInt.h"
 #include "PWM1.h"
+#include "LIDAR.h"
+#include "LIDARInt.h"
+#include "MotorInt2.h"
 
 
 void IR_OnError(void);
@@ -199,12 +202,60 @@ void IR_OnFreeTxBuf(void);
 ** ===================================================================
 */
 
-void TI1_OnInterrupt(void);
+void MotorInt_OnInterrupt(void);
 /*
 ** ===================================================================
-**     Event       :  TI1_OnInterrupt (module Events)
+**     Event       :  MotorInt_OnInterrupt (module Events)
 **
-**     Component   :  TI1 [TimerInt]
+**     Component   :  MotorInt [TimerInt]
+**     Description :
+**         When a timer interrupt occurs this event is called (only
+**         when the component is enabled - <Enable> and the events are
+**         enabled - <EnableEvent>). This event is enabled only if a
+**         <interrupt service/event> is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+void LIDARInt_OnInterrupt(void);
+/*
+** ===================================================================
+**     Event       :  LIDARInt_OnInterrupt (module Events)
+**
+**     Component   :  LIDARInt [TimerInt]
+**     Description :
+**         When a timer interrupt occurs this event is called (only
+**         when the component is enabled - <Enable> and the events are
+**         enabled - <EnableEvent>). This event is enabled only if a
+**         <interrupt service/event> is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+void LIDAR_OnEnd(void);
+/*
+** ===================================================================
+**     Event       :  LIDAR_OnEnd (module Events)
+**
+**     Component   :  LIDAR [ADC]
+**     Description :
+**         This event is called after the measurement (which consists
+**         of <1 or more conversions>) is/are finished.
+**         The event is available only when the <Interrupt
+**         service/event> property is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+void MotorInt2_OnInterrupt(void);
+/*
+** ===================================================================
+**     Event       :  MotorInt2_OnInterrupt (module Events)
+**
+**     Component   :  MotorInt2 [TimerInt]
 **     Description :
 **         When a timer interrupt occurs this event is called (only
 **         when the component is enabled - <Enable> and the events are
