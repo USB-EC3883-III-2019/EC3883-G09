@@ -34,6 +34,7 @@
 #include "PE_Error.h"
 #include "PE_Const.h"
 #include "IO_Map.h"
+#include "PE_Timer.h"
 #include "PC.h"
 #include "IR.h"
 #include "Bit1.h"
@@ -43,6 +44,7 @@
 #include "Inhr3.h"
 #include "Inhr4.h"
 #include "TI1.h"
+#include "PWM1.h"
 
 
 void IR_OnError(void);

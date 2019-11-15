@@ -232,7 +232,7 @@ void  IR_OnFreeTxBuf(void)
 void TI1_OnInterrupt(void)
 {
   /* Write your code here ... */
-	motorFlag = FLASE;
+	motorFlag = FALSE;
 }
 
 /* END Events */

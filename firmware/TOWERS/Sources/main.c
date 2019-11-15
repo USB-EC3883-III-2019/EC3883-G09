@@ -39,6 +39,7 @@
 #include "Inhr3.h"
 #include "Inhr4.h"
 #include "TI1.h"
+#include "PWM1.h"
 /* Include shared modules, which are used for whole project */
 #include "PE_Types.h"
 #include "PE_Error.h"
@@ -118,10 +119,22 @@ void move2Zone(char zoneNumber){
 	}
 }
 
+char sync(char auxFrame[]){
+	//This part checks which byte is the head of the frame, 
+	//for sync purposes
+	char i = 0;
+	for(i; i<4; i++){
+		if((auxFrame[i] >> 4) == 8){
+			return i;
+		} 
+	}
+}
+
+
 void main(void)
 {
   /* Write your local variable definition here */
-	char frame[4], zone, error;
+	char frame[4], auxFrame[7], offset, i, zone, error;
 	word ptr;
 
     
@@ -133,17 +146,61 @@ void main(void)
 
   
   do{
+	  //Wait for PC to tell if it is master or slave
 	  error = PC_RecvBlock(frame,sizeof(frame),&ptr);
   }while(error != ERR_OK);
   
-  zone = determineZone(frame);	//Determine the zone of the other tower's receiver
-  move2Zone(zone);				//Move to the specified zone
+  //if(master){
+  	  //Case Master
+  
+  	  //Set flag to zero
+  
+  	  //Move to zone
+	  zone = determineZone(frame);	//Determine the zone of the other tower's receiver
+	  move2Zone(zone);				//Move to the specified zone
+	  
+	  for(;;){
+		  
+		  IR_SendBlock(frame, sizeof(frame), &ptr);	//Send message via IR
+		  
+		  error = IR_RecvBlock(auxFrame, sizeof(auxFrame), &ptr);	//Check if a message was received 
+		  
+		  if(error == ERR_OK){
+		  	  offset = sync(auxFrame);
+		  	  i = 0;
+		  	  for(i; i<4; i++){
+		  		frame[i] = auxFrame[offset + i];
+		  	  }
+			  PC_SendBlock(frame, sizeof(frame), &ptr);	//If message was received, send it to PC
+		  }
+	  }
+  //}else{
+	  //Case Salve
+	  
+	  do{
+		  //Wait for message to arrive
+		  error = IR_RecvBlock(auxFrame,sizeof(auxFrame),&ptr);
+	  }while(error != ERR_OK);
+	  
+	  //Sync data
+	  offset = sync(auxFrame);
+	  i = 0;
+	  for(i; i<4; i++){
+		  frame[i] = auxFrame[offset + i];
+	  }
+	  
+	  PC_SendBlock(frame, sizeof(frame), &ptr);	//When message is received, send it to PC
 
-  for(;;) {
-  
-  //if (master)
-  
-  }
+  	  //Move to zone
+	  zone = determineZone(frame);	//Determine the zone of the other tower's receiver
+	  move2Zone(zone);				//Move to the specified zone
+	  
+	  for(;;){
+		  IR_SendBlock(frame, sizeof(frame), &ptr);	//Send message via IR
+	  }
+  //}
+
+ 
 
   /*** Don't write any code pass this line, or it will be deleted during code generation. ***/
   /*** RTOS startup code. Macro PEX_RTOS_START is defined by the RTOS component. DON'T MODIFY THIS CODE!!! ***/
