@@ -7,7 +7,7 @@
 **     Version     : Component 01.003, Driver 01.40, CPU db: 3.00.067
 **     Datasheet   : MC9S08QE128RM Rev. 2 6/2007
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-11-08, 13:54, # CodeGen: 4
+**     Date/Time   : 2019-11-15, 14:06, # CodeGen: 15
 **     Abstract    :
 **         This component "MC9S08QE128_80" contains initialization 
 **         of the CPU and provides basic methods and events for 
@@ -69,10 +69,21 @@
 #include "PC.h"
 #include "IR.h"
 #include "Bit1.h"
+#include "MBit1.h"
+#include "Inhr1.h"
+#include "Inhr2.h"
+#include "Inhr3.h"
+#include "Inhr4.h"
+#include "MotorInt.h"
+#include "PWM1.h"
+#include "LIDAR.h"
+#include "LIDARInt.h"
+#include "MotorInt2.h"
 #include "PE_Types.h"
 #include "PE_Error.h"
 #include "PE_Const.h"
 #include "IO_Map.h"
+#include "PE_Timer.h"
 #include "Events.h"
 #include "Cpu.h"
 
@@ -167,13 +178,13 @@ void _EntryPoint(void)
   /*lint -restore Enable MISRA rule (11.3) checking. */
   /* ICSC1: CLKS=0,RDIV=0,IREFS=1,IRCLKEN=1,IREFSTEN=0 */
   setReg8(ICSC1, 0x06U);               /* Initialization of the ICS control register 1 */ 
-  /* ICSC2: BDIV=1,RANGE=0,HGO=0,LP=0,EREFS=0,ERCLKEN=0,EREFSTEN=0 */
-  setReg8(ICSC2, 0x40U);               /* Initialization of the ICS control register 2 */ 
+  /* ICSC2: BDIV=0,RANGE=1,HGO=0,LP=0,EREFS=0,ERCLKEN=1,EREFSTEN=0 */
+  setReg8(ICSC2, 0x22U);               /* Initialization of the ICS control register 2 */ 
   while(ICSSC_IREFST == 0U) {          /* Wait until the source of reference clock is internal clock */
   }
-  /* ICSSC: DRST_DRS=0,DMX32=0 */
-  clrReg8Bits(ICSSC, 0xE0U);           /* Initialization of the ICS status and control */ 
-  while((ICSSC & 0xC0U) != 0x00U) {    /* Wait until the FLL switches to Low range DCO mode */
+  /* ICSSC: DRST_DRS=2,DMX32=0 */
+  clrSetReg8Bits(ICSSC, 0x60U, 0x80U); /* Initialization of the ICS status and control */ 
+  while((ICSSC & 0xC0U) != 0x80U) {    /* Wait until the FLL switches to High range DCO mode */
   }
 
   /*** End of PE initialization code after reset ***/
@@ -217,6 +228,20 @@ void PE_low_level_init(void)
   clrReg8Bits(PTDPE, 0x02U);            
   /* PTDDD: PTDDD1=1 */
   setReg8Bits(PTDDD, 0x02U);            
+  /* PTFD: PTFD1=0,PTFD0=0 */
+  clrReg8Bits(PTFD, 0x03U);             
+  /* PTFPE: PTFPE1=0,PTFPE0=0 */
+  clrReg8Bits(PTFPE, 0x03U);            
+  /* PTFDD: PTFDD1=1,PTFDD0=1 */
+  setReg8Bits(PTFDD, 0x03U);            
+  /* PTAD: PTAD7=0,PTAD6=0,PTAD0=0 */
+  clrReg8Bits(PTAD, 0xC1U);             
+  /* PTAPE: PTAPE7=0,PTAPE6=0 */
+  clrReg8Bits(PTAPE, 0xC0U);            
+  /* PTADD: PTADD7=1,PTADD6=1,PTADD0=1 */
+  setReg8Bits(PTADD, 0xC1U);            
+  /* APCTL1: ADPC6=1 */
+  setReg8Bits(APCTL1, 0x40U);           
   /* PTASE: PTASE7=0,PTASE6=0,PTASE4=0,PTASE3=0,PTASE2=0,PTASE1=0,PTASE0=0 */
   clrReg8Bits(PTASE, 0xDFU);            
   /* PTBSE: PTBSE7=0,PTBSE6=0,PTBSE5=0,PTBSE4=0,PTBSE3=0,PTBSE2=0,PTBSE1=0,PTBSE0=0 */
@@ -259,6 +284,24 @@ void PE_low_level_init(void)
   /* ### Asynchro serial "IR" init code ... */
   IR_Init();
   /* ### BitIO "Bit1" init code ... */
+  /* ### BitIO "Inhr1" init code ... */
+  /* ### BitIO "Inhr2" init code ... */
+  /* ### BitIO "Inhr3" init code ... */
+  /* ### BitIO "Inhr4" init code ... */
+  /* ### MultiBitIO "MBit1" init code ... */
+  /* ### TimerInt "MotorInt" init code ... */
+  MotorInt_Init();
+  /* ### Programable pulse generation "PWM1" init code ... */
+  PWM1_Init();
+  /* ###  "LIDAR" init code ... */
+  LIDAR_Init();
+  /* ### TimerInt "LIDARInt" init code ... */
+  LIDARInt_Init();
+  /* ### TimerInt "MotorInt2" init code ... */
+  MotorInt2_Init();
+  /* Common peripheral initialization - ENABLE */
+  /* TPM2SC: CLKSB=1,CLKSA=0 */
+  clrSetReg8Bits(TPM2SC, 0x08U, 0x10U); 
   CCR_lock = (byte)0;
   __EI();                              /* Enable interrupts */
 }

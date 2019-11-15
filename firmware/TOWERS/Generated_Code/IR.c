@@ -6,7 +6,7 @@
 **     Component   : AsynchroSerial
 **     Version     : Component 02.611, Driver 01.33, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-11-08, 13:54, # CodeGen: 4
+**     Date/Time   : 2019-11-14, 06:56, # CodeGen: 9
 **     Abstract    :
 **         This component "AsynchroSerial" implements an asynchronous serial
 **         communication. The component supports different settings of
@@ -18,13 +18,13 @@
 **         Serial channel              : SCI2
 **
 **         Protocol
-**             Init baud rate          : 9600baud
+**             Init baud rate          : 3500baud
 **             Width                   : 8 bits
 **             Stop bits               : 1
 **             Parity                  : none
 **             Breaks                  : Disabled
-**             Input buffer size       : 4
-**             Output buffer size      : 4
+**             Input buffer size       : 7
+**             Output buffer size      : 7
 **
 **         Registers
 **             Input buffer            : SCI2D     [$1877]
@@ -182,7 +182,9 @@ byte IR_RecvChar(IR_TComData *Chr)
     EnterCritical();                   /* Save the PS register */
     IR_InpLen--;                       /* Decrease number of received chars */
     *Chr = InpBuffer[InpIndxR];        /* Received char */
-    InpIndxR = (byte)((InpIndxR + 1U) & (IR_INP_BUF_SIZE - 1U)); /* Update index */
+    if (++InpIndxR >= IR_INP_BUF_SIZE) { /* Is the index out of the buffer? */
+      InpIndxR = 0U;                   /* Set the index to the start of the buffer */
+    }
     Result = (byte)((SerFlag & (OVERRUN_ERR|COMMON_ERR|FULL_RX)) ? ERR_COMMON : ERR_OK);
     SerFlag &= (byte)(~(byte)(OVERRUN_ERR|COMMON_ERR|FULL_RX|CHAR_IN_RX)); /* Clear all errors in the status variable */
     ExitCritical();                    /* Restore the PS register */
@@ -222,7 +224,9 @@ byte IR_SendChar(IR_TComData Chr)
   EnterCritical();                     /* Save the PS register */
   IR_OutLen++;                         /* Increase number of bytes in the transmit buffer */
   OutBuffer[OutIndxW] = Chr;           /* Store char to buffer */
-  OutIndxW = (byte)((OutIndxW + 1U) & (IR_OUT_BUF_SIZE - 1U)); /* Update index */
+  if (++OutIndxW >= IR_OUT_BUF_SIZE) { /* Is the index out of the buffer? */
+    OutIndxW = 0U;                     /* Set the index to the start of the buffer */
+  }
   if (SCI2C2_TIE == 0U) {              /* Is the transmit interrupt already enabled? */
     SCI2C2_TIE = 0x01U;                /* If no than enable transmit interrupt */
   }
@@ -319,7 +323,9 @@ byte IR_SendBlock(const IR_TComData * Ptr, word Size, word *Snd)
     OnFreeTxBuf_semaphore = TRUE;      /* Set the OnFreeTxBuf_semaphore to block OnFreeTxBuf calling */
     IR_OutLen++;                       /* Increase number of bytes in the transmit buffer */
     OutBuffer[OutIndxW] = *Ptr++;      /* Store char to buffer */
-    OutIndxW = (byte)((OutIndxW + 1U) & (IR_OUT_BUF_SIZE - 1U)); /* Update index */
+    if (++OutIndxW >= IR_OUT_BUF_SIZE) { /* Is the index out of the buffer? */
+      OutIndxW = 0U;                   /* Set the index to the start of the buffer */
+    }
     count++;                           /* Increase the count of sent data */
     if ((count == Size) || (IR_OutLen == IR_OUT_BUF_SIZE)) { /* Is the last desired char put into buffer or the buffer is full? */
       if (!local_OnFreeTxBuf_semaphore) { /* Was the OnFreeTxBuf_semaphore clear before enter the method? */
@@ -451,7 +457,9 @@ ISR(IR_InterruptRx)
   if (IR_InpLen < IR_INP_BUF_SIZE) {   /* Is number of bytes in the receive buffer lower than size of buffer? */
     IR_InpLen++;                       /* Increse number of chars in the receive buffer */
     InpBuffer[InpIndxW] = Data;        /* Save received char to the receive buffer */
-    InpIndxW = (byte)((InpIndxW + 1U) & (IR_INP_BUF_SIZE - 1U)); /* Update index */
+    if (++InpIndxW >= IR_INP_BUF_SIZE) { /* Is the index out of the buffer? */
+      InpIndxW = 0U;                   /* Set the index to the start of the buffer */
+    }
     OnFlags |= ON_RX_CHAR;             /* Set flag "OnRXChar" */
     if (IR_InpLen== IR_INP_BUF_SIZE) { /* Is number of bytes in the receive buffer equal as a size of buffer? */
       OnFlags |= ON_FULL_RX;           /* If yes then set flag "OnFullRxBuff" */
@@ -498,7 +506,9 @@ ISR(IR_InterruptTx)
     SerFlag |= RUNINT_FROM_TX;         /* Set flag "running int from TX" */
     (void)SCI2S1;                      /* Reset interrupt request flag */
     SCI2D = OutBuffer[OutIndxR];       /* Store char to transmitter register */
-    OutIndxR = (byte)((OutIndxR + 1U) & (IR_OUT_BUF_SIZE - 1U)); /* Update index */
+    if (++OutIndxR >= IR_OUT_BUF_SIZE) { /* Is the index out of the buffer? */
+      OutIndxR = 0U;                   /* Set the index to the start of the buffer */
+    }
   } else {
     if (!OnFreeTxBuf_semaphore) {
       OnFlags |= ON_FREE_TX;           /* Set flag "OnFreeTxBuf" */
@@ -561,8 +571,8 @@ void IR_Init(void)
   setReg8(SCI2C2, 0x00U);              /* Disable all interrupts */ 
   /* SCI2S2: LBKDIF=0,RXEDGIF=0,??=0,RXINV=0,RWUID=0,BRK13=0,LBKDE=0,RAF=0 */
   setReg8(SCI2S2, 0x00U);               
-  SCI2BDH = 0x00U;                     /* Set high divisor register (enable device) */
-  SCI2BDL = 0x1BU;                     /* Set low divisor register (enable device) */
+  SCI2BDH = 0x01U;                     /* Set high divisor register (enable device) */
+  SCI2BDL = 0xC1U;                     /* Set low divisor register (enable device) */
       /* SCI2C3: ORIE=1,NEIE=1,FEIE=1,PEIE=1 */
   SCI2C3 |= 0x0FU;                     /* Enable error interrupts */
   SCI2C2 |= (SCI2C2_TE_MASK | SCI2C2_RE_MASK | SCI2C2_RIE_MASK); /*  Enable transmitter, Enable receiver, Enable receiver interrupt */
