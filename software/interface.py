@@ -24,6 +24,7 @@ import matplotlib.animation as animation
 from com import *
 
 
+
 class textBox(QMainWindow):
 
     def __init__(self,mainWindow):
@@ -81,102 +82,72 @@ class Window(QMainWindow):
         self.menuBar().addSeparator()
         self.menuBar().addMenu(self.help_menu)
 
-        self.title = "Proyecto 2"
+        
+        #timer configuration for refreshing graph
+        self.timer = None
+
+        #window config
+        self.title = "PROYECTO 2"
         self.top = 100
         self.left = 100
-        self.width = 400
-        self.height = 350
+        self.width = 400 
+        self.height = 400 
+
+        master = QRadioButton("Master", self)
+        master.move(100,100)
+        master.setChecked(True)
+
+        slave = QRadioButton("Slave", self)
+        slave.move(250,100)
+        slave.setEnabled(True)
+
+
+        label = QLabel("Torre 1", self)
+        label.move(50,150)
+        t1 = QComboBox(self)
+        t1.addItem("z1")
+        t1.addItem("z2")
+        t1.addItem("z3")
+        t1.adjustSize()
+        t1.move(100,150)
+
+
+        label = QLabel("Torre 2", self)
+        label.move(50,200)
+        t2 = QComboBox(self)
+        t2.addItem("z1")
+        t2.addItem("z2")
+        t2.addItem("z3")
+        t2.adjustSize()
+        t2.move(100,200)
+
+        label = QLabel("Torre 1", self)
+        label.move(50,250)
+        t3 = QComboBox(self)
+        t3.addItem("z1")
+        t3.addItem("z2")
+        t3.addItem("z3")
+        t3.adjustSize()
+        t3.move(100,250)
         
+        sendText = QPlainTextEdit(self)
+        sendText.resize(40,30)
+        sendText.move(100,300)
 
-        self.channels = [False,False,False]
-        #push button config 
-        button = QRadioButton("Master",self) 
-        button.move(100,50)
-        button.setChecked(True)
-        #button.clicked.connect(self.plot)
+        send = QPushButton("Enviar",self)
+        send.move(50,300)
+        send.resize(45,30)
 
-        button = QRadioButton("Slave", self) 
-        button.move(250,50)
-        #button.clicked.connect(self.stop)
+        label = QLabel("Recibido", self)
+        label.move(200,150)
 
-        
-
-
-        self.t1Tag = QLabel("Torre 1", self)
-        self.t1Tag.move(70,95)
-
-        torre1 = QComboBox(self)
-        torre1.addItem("z1")
-        torre1.addItem("z2")
-        torre1.addItem("z3")
-        torre1.move(120,100)
-        torre1.resize(40,25)
-
-        self.t2Tag = QLabel("Torre 2", self)
-        self.t2Tag.move(70,145)
-        torre2 = QComboBox(self)
-        torre2.addItem("z1")
-        torre2.addItem("z2")
-        torre2.addItem("z3")
-        torre2.move(120, 150)
-        torre2.resize(40,25)
-
-
-        self.t3Tag = QLabel("Torre 3", self)
-        self.t3Tag.move(70,195)
-        torre3 = QComboBox(self)
-        torre3.addItem("z1")
-        torre3.addItem("z2")
-        torre3.addItem("z3")
-        torre3.move(120, 200)
-        torre3.resize(40,25)
-
-        self.t1Tag = QPushButton("Enviar", self)
-        self.t1Tag.resize(50,25)
-        self.t1Tag.move(65,250)
-        textArea = QPlainTextEdit(self)
-        textArea.resize(40,25)
-        textArea.move(120,250)
-        
-        self.t1Tag = QLabel("Recibido", self)
-        self.t1Tag.move(200,95)
-        textArea = QPlainTextEdit(self)
-        textArea.resize(40,25)
-        textArea.move(260,100)
-
-        #push button config 
-        
+        received = QPlainTextEdit(self)
+        received.resize(40,30)
+        received.move(260,150)
 
 
         self.setWindowIcon(QtGui.QIcon("icon.png"))
-
-
-
         self.InitWindow()
-
-    def plot_sonar(self):
-        self.channels[0] = not self.channels[0]
-        def __plot():
-            self.canvas.plot(self.channels)
-
-        return __plot
-
-    def plot_lidar(self):
-        self.channels[1] =  not self.channels[1]
-
-        def __plot():
-            
-            self.canvas.plot(self.channels)
-
-        return __plot
-    
-    def plot_solindar(self):
-        self.channels[2] = not self.channels[2]
-        def __plot():
-            self.canvas.plot(self.channels)
-
-        return __plot
-
 
     def InitWindow(self):
         self.setWindowTitle(self.title) #show windows title
