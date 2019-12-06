@@ -211,6 +211,7 @@ class Window(QMainWindow):
             self.send.setEnabled(False)
             data = receive_slave_frame(self.port)
             self.received.insertPlainText(data)
+            print("Me estoy muriendo")
 
         if btn.text() == "Master":
             #request_master_operation(self.port)
