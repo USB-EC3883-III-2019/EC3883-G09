@@ -93,58 +93,73 @@ class Window(QMainWindow):
         self.width = 400 
         self.height = 400 
 
-        master = QRadioButton("Master", self)
-        master.move(100,100)
-        master.setChecked(True)
-
-        slave = QRadioButton("Slave", self)
-        slave.move(250,100)
-        slave.setEnabled(True)
+        self.master = QRadioButton("Master", self)
+        self.master.move(100,50)
+        self.master.setChecked(True)
+        self.master.toggled.connect(lambda:self.master_slave(self.master))
+        #self.beginOperation()
 
 
-        label = QLabel("Torre 1", self)
-        label.move(50,150)
-        t1 = QComboBox(self)
-        t1.addItem("z1")
-        t1.addItem("z2")
-        t1.addItem("z3")
-        t1.adjustSize()
-        t1.move(100,150)
+        self.slave = QRadioButton("Slave", self)
+        self.slave.move(250,50)
+        self.slave.setEnabled(True)
+        self.slave.toggled.connect(lambda:self.master_slave(self.slave))
+
+        self.label = QLabel("Torre 1", self)
+        self.label.move(45,100)
+        self.t1 = QComboBox(self)
+        self.t1.addItems(["z1","z2","z3", "z4", "z5", "z6"])
+        self.t1.adjustSize()
+        self.t1.move(100,100)
 
 
-        label = QLabel("Torre 2", self)
-        label.move(50,200)
-        t2 = QComboBox(self)
-        t2.addItem("z1")
-        t2.addItem("z2")
-        t2.addItem("z3")
-        t2.adjustSize()
-        t2.move(100,200)
+        self.label = QLabel("Torre 2", self)
+        self.label.move(45,150)
+        self.t2 = QComboBox(self)
+        self.t2.addItems(["z1","z2","z3", "z4", "z5", "z6"])
+        self.t2.adjustSize()
+        self.t2.move(100,150)
 
-        label = QLabel("Torre 1", self)
-        label.move(50,250)
-        t3 = QComboBox(self)
-        t3.addItem("z1")
-        t3.addItem("z2")
-        t3.addItem("z3")
-        t3.adjustSize()
-        t3.move(100,250)
+        self.label = QLabel("Torre 3", self)
+        self.label.move(45,200)
+        self.t3 = QComboBox(self)
+        self.t3.addItems(["z1","z2","z3", "z4", "z5", "z6"])
+        self.t3.adjustSize()
+        self.t3.move(100,200)
         
-        sendText = QPlainTextEdit(self)
-        sendText.resize(40,30)
-        sendText.move(100,300)
+        self.label = QLabel("Torre 4", self)
+        self.label.move(45,250)
+        self.t4 = QComboBox(self)
+        self.t4.addItems(["z1","z2","z3", "z4", "z5", "z6"])
+        self.t4.adjustSize()
+        self.t4.move(100,250)
+        
+        self.sendText = QPlainTextEdit(self)
+        self.sendText.resize(40,30)
+        self.sendText.move(100,300)
 
-        send = QPushButton("Enviar",self)
-        send.move(50,300)
-        send.resize(45,30)
+        self.send = QPushButton("Enviar",self)
+        self.send.move(50,300)
+        self.send.resize(45,30)
+        self.send.clicked.connect(lambda:self.send_btn())
 
-        label = QLabel("Recibido", self)
-        label.move(200,150)
+        self.label = QLabel("Recibido", self)
+        self.label.move(50,350)
 
-        received = QPlainTextEdit(self)
-        received.resize(40,30)
-        received.move(260,150)
+        self.message = QPlainTextEdit(self)
+        self.message.resize(40,30)
+        self.message.move(100,350)
 
+
+        self.label = QLabel("Recibido", self)
+        self.label.move(200,100)
+
+        self.received = QPlainTextEdit(self)
+        self.received.resize(40,30)
+        self.received.move(260,100)
+        self.received.setReadOnly(True)
+
+        self.port = openPort()
 
         self.setWindowIcon(QtGui.QIcon("icon.png"))
         self.InitWindow()
@@ -161,23 +176,46 @@ class Window(QMainWindow):
         self.newTb = textBox(self)
         self.newTb.show()
  
-
-    def plot(self):
+    # def plot(self):
         
-        """ 
-            Sets timer and calls canvas plot internal function
+    #     """ 
+    #         Sets timer and calls canvas plot internal function
 
-        """
+    #     """
         
-        if self.timer: #if timer is running stop and restart a new one
-            self.timer.stop()
-            self.timer.deleteLater()
+    #     if self.timer: #if timer is running stop and restart a new one
+    #         self.timer.stop()
+    #         self.timer.deleteLater()
 
-        self.timer = QtCore.QTimer(self)
-        self.timer.timeout.connect(self.canvas.plot(self.channels))
-        self.timer.start(16) 
+    #     self.timer = QtCore.QTimer(self)
+    #     self.timer.timeout.connect(self.canvas.plot(self.channels))
+    #     self.timer.start(16)
+
+    def beginOperation(self):
+        send_start_signal(self.port)
+
+    def send_btn(self):
+        z1 = self.t1.currentIndex()+1
+        z2 = self.t2.currentIndex()+1
+        z3 = self.t3.currentIndex()+1
+        z4 = self.t4.currentIndex()+1
+        print(self.sendText.document().toPlainText())
+        send_master_frame(self.port,self.sendText.document().toPlainText(),[z1,z2,z3,z4])
+     
         
-      
+    def master_slave(self, btn):
+        if btn.text() == "Slave":
+            request_slave_operation(self.port)
+
+        while btn.text() == "Slave":
+            self.send.setEnabled(False)
+            data = receive_slave_frame(self.port)
+            self.received.insertPlainText(data)
+
+        if btn.text() == "Master":
+            #request_master_operation(self.port)
+            self.send.setEnabled(True)
+        
 
     def stop(self):
         self.timer.stop() #kill timer
