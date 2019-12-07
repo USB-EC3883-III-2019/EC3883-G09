@@ -201,30 +201,27 @@ class Window(QMainWindow):
         z4 = self.t4.currentIndex()+1
         print(self.sendText.document().toPlainText())
         send_master_frame(self.port,self.sendText.document().toPlainText(),[z1,z2,z3,z4])
-        import time
-        while 1:
-            p = receive_frame(self.port)
-            print("Esto no deberia ocurrir ")
-            time.sleep(1000)
-     
+        receiving_data = receive_frame(self.port)
+        print(receiving_data) 
+        self.message.setPlainText(receiving_data)
     
 
-    def master_slave(self, btn):
-        if btn.text() == "Slave":
-            request_slave_operation(self.port)
+    # def master_slave(self, btn):
+    #     if btn.text() == "Slave":
+    #         request_slave_operation(self.port)
 
-        while btn.text() == "Slave":
-            self.send.setEnabled(False)
-            data = receive_frame(self.port)
-            print(data)
-            self.received.insertPlainText(data)
-            print("Me estoy muriendo")
+    #     while btn.text() == "Slave":
+    #         self.send.setEnabled(False)
+    #         data = receive_frame(self.port)
+    #         print(data)
+    #         self.received.insertPlainText(data)
+    #         print("Me estoy muriendo")
 
-        if btn.text() == "Master":
-            #request_master_operation(self.port)
-            self.send.setEnabled(True)
-            #data = receive_frame(self.port)
-            #print(data)
+    #     if btn.text() == "Master":
+    #         #request_master_operation(self.port)
+    #         self.send.setEnabled(True)
+    #         #data = receive_frame(self.port)
+    #         #print(data)
 
             
         
