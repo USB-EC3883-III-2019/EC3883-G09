@@ -78,9 +78,9 @@ def receive_frame(port):
         mh = frame[0] & 0x0f
         ml = frame[1] & 0x0f
         m = (mh << 4) | ml
-        return m
+        return str(m)
     else:
-        return -1
+        return str(-1)
 
 
 
