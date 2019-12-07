@@ -96,7 +96,7 @@ class Window(QMainWindow):
         self.master = QRadioButton("Master", self)
         self.master.move(100,50)
         self.master.setChecked(True)
-        self.master.toggled.connect(lambda:self.master_slave(self.master))
+        #self.master.toggled.connect(lambda:self.master_slave(self.master))
         #self.beginOperation()
 
 
@@ -201,9 +201,14 @@ class Window(QMainWindow):
         z4 = self.t4.currentIndex()+1
         print(self.sendText.document().toPlainText())
         send_master_frame(self.port,self.sendText.document().toPlainText(),[z1,z2,z3,z4])
-        self.master_slave(self.master)
+        import time
+        while 1:
+            p = receive_frame(self.port)
+            print("Esto no deberia ocurrir ")
+            time.sleep(1)
      
-        
+    
+
     def master_slave(self, btn):
         if btn.text() == "Slave":
             request_slave_operation(self.port)
@@ -217,9 +222,11 @@ class Window(QMainWindow):
 
         if btn.text() == "Master":
             #request_master_operation(self.port)
-            data = receive_frame(self.port)
-            print(data)
             self.send.setEnabled(True)
+            #data = receive_frame(self.port)
+            #print(data)
+
+            
         
 
     def stop(self):
