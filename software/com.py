@@ -70,7 +70,7 @@ def send_master_frame(port, message,zones):
 
     port.write(f)
 
-def receive_slave_frame(port):
+def receive_frame(port):
 
     frame = port.read(4)
     
@@ -78,9 +78,9 @@ def receive_slave_frame(port):
         mh = frame[0] & 0x0f
         ml = frame[1] & 0x0f
         m = (mh << 4) | ml
-        return chr(m)
+        return m
     else:
-        return '-'
+        return -1
 
 
 
