@@ -103,7 +103,7 @@ class Window(QMainWindow):
         self.slave = QRadioButton("Slave", self)
         self.slave.move(250,50)
         self.slave.setEnabled(True)
-        self.slave.toggled.connect(lambda:self.master_slave(self.slave))
+        #self.slave.toggled.connect(lambda:self.master_slave(self.slave))
 
         self.label = QLabel("Torre 1", self)
         self.label.move(45,100)
