@@ -22,65 +22,16 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from com import *
+import threading
 
 
 
-class textBox(QMainWindow):
 
-    def __init__(self,mainWindow):
-        super(textBox,self).__init__()
-        self.main = mainWindow
-        self.setWindowIcon(QtGui.QIcon("icon.png"))
-        self.title = 'Save Plot'
-        self.left = 500
-        self.top = 500
-        self.width = 250
-        self.height = 150
-        self.initUI()
 
-    def initUI(self):
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)  
-        
-        # Create label
-        self.text = QLabel("Enter file name: ", self)
-        self.text.move(20,20)
-    
-        # Create textbox
-        self.textbox = QLineEdit(self)
-        self.textbox.move(20, 50)
-        self.textbox.resize(200,20)
- 
-        # Create a button in the window
-        self.button = QPushButton('Save', self)
-        self.button.move(85,90)
-        self.button.resize(80,30)
-        self.button.clicked.connect(self.saveFile)
- 
-    
-        self.show()
-    
-    def saveFile(self):
-        self.main.canvas.fig.savefig(self.textbox.text() + '.png')
-        self.close()
-    
 
 class Window(QMainWindow): 
     def __init__(self):
         super().__init__()
-
-        #Status bar 
-        self.file_menu = QtWidgets.QMenu('&File', self)
-        self.file_menu.addAction('&Quit', self.fileQuit,
-                                 QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
-        self.file_menu.addAction('&Save As', self.fileSave,
-                                 QtCore.Qt.CTRL + QtCore.Qt.Key_S)
-        self.menuBar().addMenu(self.file_menu)
-        
-        #Help option
-        self.help_menu = QtWidgets.QMenu('&Help', self)
-        self.menuBar().addSeparator()
-        self.menuBar().addMenu(self.help_menu)
 
         
         #timer configuration for refreshing graph
@@ -169,30 +120,20 @@ class Window(QMainWindow):
         self.setGeometry(self.top, self.left, self.width, self.height) #set window geometry
         self.show() #show all above
 
-    def fileQuit(self): 
-        self.close() #exit application
-    
-    def fileSave(self):
-        self.newTb = textBox(self)
-        self.newTb.show()
- 
-    # def plot(self):
-        
-    #     """ 
-    #         Sets timer and calls canvas plot internal function
 
-    #     """
-        
-    #     if self.timer: #if timer is running stop and restart a new one
-    #         self.timer.stop()
-    #         self.timer.deleteLater()
+    class thread(threading.Thread):
 
-    #     self.timer = QtCore.QTimer(self)
-    #     self.timer.timeout.connect(self.canvas.plot(self.channels))
-    #     self.timer.start(16)
+        def __init__(self, context, port):
+            threading.Thread.__init__(self)
+            self.context = context
+            self.port = port
 
-    def beginOperation(self):
-        send_start_signal(self.port)
+        def run(self):
+            data = receive_frame(self.port)
+            print(data)
+            self.context.message.setPlainText(data)
+            
+
 
     def send_btn(self):
         z1 = self.t1.currentIndex()+1
@@ -201,10 +142,19 @@ class Window(QMainWindow):
         z4 = self.t4.currentIndex()+1
         print(self.sendText.document().toPlainText())
         send_master_frame(self.port,self.sendText.document().toPlainText(),[z1,z2,z3,z4])
-        receiving_data = receive_frame(self.port)
-        print(receiving_data) 
-        self.message.setPlainText(receiving_data)
+        receiver = thread(self,self.port)
+        receiver.start()
+
+        #receiving_data = receive_frame(self.port)
+        #print(receiving_data) 
+        #self.message.setPlainText(receiving_data)
     
+
+    # def handle_async_receive(self):
+    #     data = receive_frame(self.port)
+    #     print(data)
+    #     self.message.setPlainText(data)
+        
 
     # def master_slave(self, btn):
     #     if btn.text() == "Slave":
