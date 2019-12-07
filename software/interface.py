@@ -205,7 +205,7 @@ class Window(QMainWindow):
         while 1:
             p = receive_frame(self.port)
             print("Esto no deberia ocurrir ")
-            time.sleep(1)
+            time.sleep(1000)
      
     
 

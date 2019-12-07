@@ -14,7 +14,7 @@ def openPort(port="COM6",baudrate=115200):
 
     import serial 
 
-    p = serial.Serial(port=port, baudrate=baudrate, timeout=None)
+    p = serial.Serial(port=port, baudrate=baudrate, timeout=10000000000)
     return p 
         
     
@@ -93,43 +93,8 @@ def b2b(s):
     return bytes(b[::-1])
 
 
-def receiveData(dataSerial):
-    
-    import math
-    f = dataSerial.read(4)
-
-    pos = -1
-    s = -1
-    l = -1
-
-
-    if f[0] & 0x80 == 0: 
-            #synchronized already
-        pos = f[0]
-        s = (((f[1] & 0x7f) << 2) & 0x3fc) | ((f[2] & 0x60) >> 5) 
-        l = (f[2] & 0x1f) << 7 | (f[3] & 0x7f)
-        raw_pos = pos
-        pos = math.pi*((360/96)*(pos) - 30)/180
-        s *= 61.035156/58
-        s = min(s,80)
-        #l  = (l*3)/(4096*0.6)
-        
-        l = convertLidar(l)
-        l = min(l,80)
-        
-
-    else:
-        synchronize(dataSerial)
-
-    return (pos,s,l)
-    
-def convertLidar(x):
-    #return 21.734*(x**4) - 138.92*(x**3) + 330.98*(x**2) - 361.52*(x) + 173.81
-    
-    #import math 
-    #return 109750*(x)**(-1.23)     
-    return 24067*(x**(-1.011))      #Best option
-    
 if __name__ == '__main__':
     port = openPort()
-    masterFrameBuilder(port,"97", [1,1,1,1])
+    while True:
+        data = port.read(4)
+        print(data)
