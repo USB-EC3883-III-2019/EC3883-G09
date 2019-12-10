@@ -32,7 +32,6 @@
 #include "Events.h"
 #include "PC.h"
 #include "IR.h"
-#include "Bit1.h"
 #include "MBit1.h"
 #include "Inhr1.h"
 #include "Inhr2.h"
@@ -43,6 +42,7 @@
 #include "LIDAR.h"
 #include "LIDARInt.h"
 #include "MotorInt2.h"
+#include "SendInt.h"
 /* Include shared modules, which are used for whole project */
 #include "PE_Types.h"
 #include "PE_Error.h"
@@ -64,8 +64,18 @@ const char steps[] = { 10,     //1010
                         2,     //0010
 };
 //Global variables
-bool motorFlag = TRUE, lidarFlag = TRUE;
+char error = 80;
+bool motorFlag = TRUE, lidarFlag = TRUE, bufferFlag = TRUE, bufferPCFlag = TRUE, sendFlag = TRUE;
 
+
+char masterCheck(char frame[]){
+	if(frame[0] >> 6 == 3){
+		return 0;
+	}else{
+		return 1;
+	}
+	
+}
 
 char determineZone(char frame[]){
 	//This function determines the zone that the tower
@@ -93,6 +103,8 @@ char determineZone(char frame[]){
 					//TOWER 4		
 					zone = frame[3];
 					frame[3] = 0b00000000;
+				}else{
+					return 255;
 				}
 			}
 		}
@@ -104,12 +116,12 @@ char determineZone(char frame[]){
 void move2Zone(char zoneNumber){
 	//This function moves the motor to the middle 
 	//of the corresponding zone
-	
-	if(zoneNumber != 1){
+
+	if(zoneNumber > 0){
 		//If already in zone 1, don't move. Otherwise, move.
 		
-		char i = 0, stepsOffset = (zoneNumber - 1)*12;	//12 is the number of half steps per zone 
-		
+		char i = 0, stepsOffset = (zoneNumber - 1)*12 + 6;	//12 is the number of half steps per zone 
+															//+6 to move to the centre of the zone
 		MotorInt_Enable();
 		for(i; i < stepsOffset; i++){
 			
@@ -189,11 +201,11 @@ void move2Receiver(char receiver, char zoneNumber){
 	//to establish sight line between
 	//transmitter and receiver
 	
-	char currentPosition = zoneNumber*12 - 1, finalPosition = currentPosition - receiver;
+	char currentPosition = zoneNumber*12 - 1, finalPosition = currentPosition - (11 - receiver);
 	
 	MotorInt_Enable();	//30ms
 	
-	for (currentPosition; currentPosition > finalPosition; currentPosition--){
+	for (currentPosition; (currentPosition - 1) >= finalPosition; currentPosition--){
 		
 		while(motorFlag){}
 		MBit1_PutVal(steps[currentPosition%8]);
@@ -204,23 +216,27 @@ void move2Receiver(char receiver, char zoneNumber){
 	MotorInt_Disable();	//30ms
 }
 
-char sync(char auxFrame[]){
+void sync(char auxFrame[], char frame[]){
 	//This part checks which byte is the head of the frame, 
 	//for sync purposes
-	char i = 0;
-	for(i; i<4; i++){
+	char i = 0, offset = 0;
+	for(i; i < 5; i++){
 		if((auxFrame[i] >> 4) == 8){
-			return i;
+			offset = i;
 		} 
 	}
+	
+	i = 0;
+	for(i; i<4; i++){
+	frame[i] = auxFrame[offset + i];
+	}
 }
-
 
 
 void main(void)
 {
   /* Write your local variable definition here */
-	char frame[4], auxFrame[7], offset, i, zone, receiverPosition, error;
+	char frame2Send[4], frameReceived[4], auxFrame[8], i, zone, receiverPosition, mode, done;
 	word ptr;
 
     
@@ -229,66 +245,87 @@ void main(void)
   /*** End of Processor Expert internal initialization.                    ***/
 
   /* Write your code here */
-
   
+  SendInt_Disable();
   do{
-	  //Wait for PC to tell if it is master or slave
-	  error = PC_RecvBlock(frame,sizeof(frame),&ptr);
+	  //Wait for PC to tell if it is master or slave. If master, receive data.
+	  while(bufferPCFlag){}
+	  bufferPCFlag = TRUE;
+	  error = PC_RecvBlock(frame2Send,sizeof(frame2Send),&ptr);
   }while(error != ERR_OK);
   
-  //if(master){
-  	  //Case Master
+  mode = masterCheck(frame2Send);	//mode = 1 if master and 0 if slave
   
-  	  //Set flag to zero
-  
-  	  //Move tower
-	  zone = determineZone(frame);	//Determine the zone of the other tower's receiver.
-	  move2Zone(zone);				//Move to the specified zone.
-	  receiverPosition = findReceiver(zone);	//Determine the receiver's position.
-	  move2Receiver(receiverPosition, zone);	//Move the tower to the receiver's position.
-	  
-	  for(;;){
+  if(mode){
+		//Case Master
+		
+		//Move tower
+		zone = determineZone(frame2Send);	//Determine the zone of the other tower's receiver.
+		move2Zone(zone);				//Move to the middle of the specified zone.
+//		receiverPosition = findReceiver(zone);	//Determine the receiver's position.
+//		move2Receiver(receiverPosition, zone);	//Move the tower to the receiver's position.
+		
+		for(;;){
 		  
-		  IR_SendBlock(frame, sizeof(frame), &ptr);	//Send message via IR
+		  SendInt_Enable();
+		  i = 0;
 		  
-		  error = IR_RecvBlock(auxFrame, sizeof(auxFrame), &ptr);	//Check if a message was received 
-		  
-		  if(error == ERR_OK){
-		  	  offset = sync(auxFrame);
-		  	  i = 0;
-		  	  for(i; i<4; i++){
-		  		frame[i] = auxFrame[offset + i];
-		  	  }
-			  PC_SendBlock(frame, sizeof(frame), &ptr);	//If message was received, send it to PC
+		  for(i; i < 4; i++){
+			  //Send 4 times, 50-millisecond intervals
+			  while(sendFlag){}	//Wait for interrupt to occur.
+			  sendFlag = TRUE;
+			  IR_SendBlock(frame2Send, sizeof(frame2Send), &ptr);	//Send message via IR.
 		  }
-	  }
-  //}else{
+		  sendFlag = TRUE;
+//		  SendInt_Disable();
+		  
+		  
+		  i = 0;
+		  IR_ClearRxBuf();
+		  for(i;i < 4; i++){
+			  while(bufferFlag && sendFlag){}	//Wait for the buffer to be full or timeout
+			  bufferFlag = TRUE;
+		  	  sendFlag = TRUE;
+			  
+			  IR_RecvBlock(&auxFrame, sizeof(auxFrame), &ptr);	//Check if a message was received
+			  
+			  sync(auxFrame, frameReceived);	//Sync received data 
+			  done = determineZone(frameReceived);
+//			  done = 255;
+//			  frameReceived[0] = 0b10001111;
+//			  frameReceived[1] = 0b00000000;
+//			  frameReceived[2] = 0b00000000;
+//			  frameReceived[3] = 0b00000000;
+			  
+			  if(done == 255){
+				  PC_SendBlock(frameReceived, sizeof(frameReceived), &ptr);	//Send new data to PC
+			  }
+		  }
+		}
+  
+	}else{
 	  //Case Salve
 	  
-	  do{
-		  //Wait for message to arrive
-		  error = IR_RecvBlock(auxFrame,sizeof(auxFrame),&ptr);
-	  }while(error != ERR_OK);
-	  
-	  //Sync data
-	  offset = sync(auxFrame);
-	  i = 0;
-	  for(i; i<4; i++){
-		  frame[i] = auxFrame[offset + i];
-	  }
-	  
-	  PC_SendBlock(frame, sizeof(frame), &ptr);	//When message is received, send it to PC
-
-  	  //Move tower
-	  zone = determineZone(frame);	//Determine the zone of the other tower's receiver.
-	  move2Zone(zone);				//Move to the specified zone.
-	  receiverPosition = findReceiver(zone);	//Determine the receiver's position.
-	  move2Receiver(receiverPosition, zone);	//Move the tower to the receiver's position.
-	  
-	  for(;;){
-		  IR_SendBlock(frame, sizeof(frame), &ptr);	//Send message via IR
-	  }
-  //}
+		while(bufferFlag){}	//Wait for the buffer to be full
+		bufferFlag = TRUE;
+		
+		IR_RecvBlock(&auxFrame, sizeof(auxFrame), &ptr);	//Check if a message was received
+		
+		sync(auxFrame, frameReceived);	//Sync received data 
+				  
+		PC_SendBlock(frameReceived, sizeof(frameReceived), &ptr);	//When message is received, send it to PC
+		
+		//Move tower
+		zone = determineZone(frameReceived);	//Determine the zone of the other tower's receiver.
+		move2Zone(zone);				//Move to the specified zone.
+//		receiverPosition = findReceiver(zone);	//Determine the receiver's position.
+//		move2Receiver(receiverPosition, zone);	//Move the tower to the receiver's position.
+		
+		for(;;){
+			IR_SendBlock(frameReceived, sizeof(frameReceived), &ptr);	//Send message via IR
+			Cpu_Delay100US(300);
+		}
+  }
 
  
 

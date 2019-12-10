@@ -23,6 +23,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from com import *
 import threading
+import ctypes
+import time
 
 
 
@@ -44,9 +46,21 @@ class Window(QMainWindow):
         self.width = 400 
         self.height = 400 
 
+        self.port = openPort()
+        self.port.flush()
+
+        self.label = QLabel("Recibido", self)
+        self.label.move(200,100)
+
+        self.received = QPlainTextEdit(self)
+        self.received.resize(40,30)
+        self.received.move(260,100)
+        self.received.setReadOnly(True)
+
         self.master = QRadioButton("Master", self)
         self.master.move(100,50)
         self.master.setChecked(True)
+        self.master_exec = None
         #self.master.toggled.connect(lambda:self.master_slave(self.master))
         #self.beginOperation()
 
@@ -54,7 +68,8 @@ class Window(QMainWindow):
         self.slave = QRadioButton("Slave", self)
         self.slave.move(250,50)
         self.slave.setEnabled(True)
-        #self.slave.toggled.connect(lambda:self.master_slave(self.slave))
+        self.slave.toggled.connect(lambda:self.start_receiving(self.slave))
+        self.slave_exec = self.slave_thread(self.slave,self.port)
 
         self.label = QLabel("Torre 1", self)
         self.label.move(45,100)
@@ -102,15 +117,9 @@ class Window(QMainWindow):
         self.message.move(100,350)
 
 
-        self.label = QLabel("Recibido", self)
-        self.label.move(200,100)
+        
 
-        self.received = QPlainTextEdit(self)
-        self.received.resize(40,30)
-        self.received.move(260,100)
-        self.received.setReadOnly(True)
-
-        self.port = openPort()
+        
 
         self.setWindowIcon(QtGui.QIcon("icon.png"))
         self.InitWindow()
@@ -121,59 +130,83 @@ class Window(QMainWindow):
         self.show() #show all above
 
 
-    class thread(threading.Thread):
+    class master_thread(threading.Thread):
 
-        def __init__(self, context, port):
+        def __init__(self, port):
             threading.Thread.__init__(self)
-            self.context = context
             self.port = port
 
         def run(self):
             data = receive_frame(self.port)
-            print(data)
-            self.context.message.setPlainText(data)
-            
+            print("Recibiendo Master: " + data)
+            #self.btn.setPlainText(data)
 
+        def get_id(self):
+            if hasattr(self, '_thread_id'):
+                return self._thread_id
+            for id, thread in threading._active.items():
+                if thread is self:
+                    return id
+
+        def __stop():
+            thread_id = self.get_id()
+            res = ctypes.pythonapi.PyThreadState_SetAsycExc(thread_id,ctypes.py_object(SystemExit))
+            if res > 1:
+                ctypes.pythonapi.PyThreadState_SetAsycExc(thread_id,0)
+                print("Aborted Master thread")
+
+    class slave_thread(threading.Thread):
+
+        def __init__(self, btn, port):
+            threading.Thread.__init__(self)
+            self.btn = btn
+            self.port = port
+
+        def run(self):
+            while self.btn.isChecked(): 
+                print("Estoy corriendito papa")
+                data = receive_frame(self.port)
+                print("Recibiendo Slave: " + data)
+
+            print("Saliendo papa")
+            self.stop()
+        
+        def get_id(self):
+            if hasattr(self, '_thread_id'):
+                return self._thread_id
+            for id, thread in threading._active.items():
+                if thread is self:
+                    return id
+
+        def stop(self):
+            thread_id = self.get_id()
+            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id,ctypes.py_object(SystemExit))
+            if res > 1:
+                ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id,0)
+                print("Aborted Slave thread")
 
     def send_btn(self):
+        # if self.slave_exec.isAlive():
+        #     self.slave_exec.stop()
+        #     self.slave_exec = self.slave_thread(self.slave,self.port)
         z1 = self.t1.currentIndex()+1
         z2 = self.t2.currentIndex()+1
         z3 = self.t3.currentIndex()+1
         z4 = self.t4.currentIndex()+1
-        print(self.sendText.document().toPlainText())
+        print("Enviando: " + self.sendText.document().toPlainText())
         send_master_frame(self.port,self.sendText.document().toPlainText(),[z1,z2,z3,z4])
-        receiver = thread(self,self.port)
-        receiver.start()
+        self.master_exec = self.master_thread(self.port)
+        self.master_exec.start()
+        #self.master_exec.join()
 
-        #receiving_data = receive_frame(self.port)
-        #print(receiving_data) 
-        #self.message.setPlainText(receiving_data)
-    
 
-    # def handle_async_receive(self):
-    #     data = receive_frame(self.port)
-    #     print(data)
-    #     self.message.setPlainText(data)
-        
-
-    # def master_slave(self, btn):
-    #     if btn.text() == "Slave":
-    #         request_slave_operation(self.port)
-
-    #     while btn.text() == "Slave":
-    #         self.send.setEnabled(False)
-    #         data = receive_frame(self.port)
-    #         print(data)
-    #         self.received.insertPlainText(data)
-    #         print("Me estoy muriendo")
-
-    #     if btn.text() == "Master":
-    #         #request_master_operation(self.port)
-    #         self.send.setEnabled(True)
-    #         #data = receive_frame(self.port)
-    #         #print(data)
-
-            
+    def start_receiving(self, btn):
+        # if self.slave_exec.isAlive():
+        #     self.slave_exec.stop()
+        #     self.slave_exec = self.slave_thread(self.slave,self.port)
+        request_slave_operation(self.port)
+        self.slave_exec.start()
+        #self.slave_exec.join()
         
 
     def stop(self):

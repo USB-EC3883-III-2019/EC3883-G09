@@ -14,7 +14,7 @@ def openPort(port="COM6",baudrate=115200):
 
     import serial 
 
-    p = serial.Serial(port=port, baudrate=baudrate, timeout=None)
+    p = serial.Serial(port=port, baudrate=baudrate, timeout=10000000000000000000.0)
     return p 
         
     

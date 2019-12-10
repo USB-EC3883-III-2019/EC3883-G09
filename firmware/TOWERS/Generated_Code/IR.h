@@ -6,7 +6,7 @@
 **     Component   : AsynchroSerial
 **     Version     : Component 02.611, Driver 01.33, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-11-14, 06:56, # CodeGen: 9
+**     Date/Time   : 2019-12-03, 11:05, # CodeGen: 25
 **     Abstract    :
 **         This component "AsynchroSerial" implements an asynchronous serial
 **         communication. The component supports different settings of
@@ -23,8 +23,8 @@
 **             Stop bits               : 1
 **             Parity                  : none
 **             Breaks                  : Disabled
-**             Input buffer size       : 7
-**             Output buffer size      : 7
+**             Input buffer size       : 8
+**             Output buffer size      : 4
 **
 **         Registers
 **             Input buffer            : SCI2D     [$1877]
@@ -61,6 +61,7 @@
 **         ClearTxBuf      - byte IR_ClearTxBuf(void);
 **         GetCharsInRxBuf - word IR_GetCharsInRxBuf(void);
 **         GetCharsInTxBuf - word IR_GetCharsInTxBuf(void);
+**         GetError        - byte IR_GetError(IR_TError *Err);
 **
 **     Copyright : 1997 - 2014 Freescale Semiconductor, Inc. 
 **     All Rights Reserved.
@@ -145,8 +146,8 @@
   typedef byte IR_TComData ;           /* User type for communication. Size of this type depends on the communication data width. */
 #endif
 
-#define IR_INP_BUF_SIZE  0x07U         /* Input buffer size */
-#define IR_OUT_BUF_SIZE  0x07U         /* Output buffer size */
+#define IR_INP_BUF_SIZE  0x08U         /* Input buffer size */
+#define IR_OUT_BUF_SIZE  0x04U         /* Output buffer size */
 
 extern byte IR_OutLen;                 /* Length of the output buffer content */
 extern byte IR_InpLen;                 /* Length of the input buffer content */
@@ -331,6 +332,27 @@ byte IR_ClearTxBuf(void);
 **     Returns     :
 **         ---             - The number of characters in the output
 **                           buffer.
+** ===================================================================
+*/
+
+byte IR_GetError(IR_TError *Err);
+/*
+** ===================================================================
+**     Method      :  IR_GetError (component AsynchroSerial)
+**     Description :
+**         Returns a set of errors on the channel (errors that cannot
+**         be returned by given methods). The errors accumulate in a
+**         set; after calling [GetError] this set is returned and
+**         cleared.
+**     Parameters  :
+**         NAME            - DESCRIPTION
+**       * Err             - Pointer to the returned set of errors
+**     Returns     :
+**         ---             - Error code (if GetError did not succeed),
+**                           possible codes:
+**                           ERR_OK - OK
+**                           ERR_SPEED - This device does not work in
+**                           the active speed mode
 ** ===================================================================
 */
 

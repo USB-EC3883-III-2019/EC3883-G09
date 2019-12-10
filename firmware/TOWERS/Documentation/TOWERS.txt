@@ -30,6 +30,8 @@ Module "PC"        (component AsynchroSerial)
                 property is enabled.
    - PC_GetCharsInTxBuf -Returns the number of characters in the output buffer. This method is available only if the 
                 transmitter property is enabled.
+   - PC_GetError -Returns a set of errors on the channel (errors that cannot be returned by given methods). The errors 
+                accumulate in a set; after calling [GetError] this set is returned and cleared.
 
 Module "IR"        (component AsynchroSerial)
    - IR_RecvChar -If any data is received, this method returns one character, otherwise it returns an error code (it does not 
@@ -57,22 +59,80 @@ Module "IR"        (component AsynchroSerial)
                 property is enabled.
    - IR_GetCharsInTxBuf -Returns the number of characters in the output buffer. This method is available only if the 
                 transmitter property is enabled.
+   - IR_GetError -Returns a set of errors on the channel (errors that cannot be returned by given methods). The errors 
+                accumulate in a set; after calling [GetError] this set is returned and cleared.
 
-Module "Bit1"      (component BitIO)
-   - Bit1_GetVal -Returns the input/output value. If the direction is [input] then the input value of the pin is read and 
-                returned. If the direction is [output] then the last written value is returned (see <Safe mode> property for 
-                limitations). This method cannot be disabled if direction is [input].
-   - Bit1_PutVal -The specified output value is set. If the direction is [input], the component saves the value to a memory or 
-                a register and this value will be written to the pin after switching to the output mode (using [SetDir(TRUE)]; 
-                see <Safe mode> property for limitations). If the direction is [output], it writes the value to the pin. 
-                (Method is available only if the direction = _[output]_ or _[input/output]_).
-   - Bit1_ClrVal -Clears (set to zero) the output value. It is equivalent to the [PutVal(FALSE)]. This method is available only 
-                if the direction = _[output]_ or _[input/output]_.
-   - Bit1_SetVal -Sets (to one) the output value. It is equivalent to the [PutVal(TRUE)]. This method is available only if the 
-                direction = _[output]_ or _[input/output]_.
+Module "MBit1"     (component MultiBitIO)
+   - MBit1_GetDir -Returns selected direction.
+   - MBit1_GetVal -Returns the value of the Input/Output component. Component calls ancestor's [GetVal] for each bit and 
+                composes value according its order. That is [direction] independent, for details look into ancestor 
+                documentation.
+   - MBit1_PutVal -Specified value is passed to the Input/Output component. Component calls ancestor's [PutVal] for each bit 
+                with corresponded value. That is [direction] independent, for details look into ancestor documentation.  This 
+                method is enabled only if the Direction = _[output]_ or _[input/output]_.
+   - MBit1_GetBit -Returns the value of the specified bit/pin of the Input/Output component. For specified bit is called 
+                ancestor's [GetVal] method. That is [direction] independent, for details look into ancestor documentation. Pins 
+                are addressed form zero, where 0 is equaled to LSB. In case incorrept pin number value is used method returns 0.
+   - MBit1_PutBit -Specified value is passed to the specified bit/pin of the Input/Output component. For specified bit is 
+                called ancestor's [PutVal] method. That is [direction] independent, for details look into ancestor 
+                documentation..  This method is enabled only if the Direction = _[output]_ or _[input/output]_. Pins are 
+                addressed form zero, where 0 is equaled to LSB.
+   - MBit1_SetBit -Sets (to one) the specified bit of the Input/Output component. It is the same as [PutBit(Bit, TRUE)].  This 
+                method is enabled only if the Direction = _[output]_ or _[input/output]_). Pins are addressed form zero, where 
+                0 is equaled to LSB.
+   - MBit1_ClrBit -Clears (sets to zero) the specified bit of the Input/Output component. It is the same as [PutBit(Bit, FALSE)
+                ].  This method is enabled only if the Direction = _[output]_ or _[input/output]_). Pins are addressed form 
+                zero, where 0 is equaled to LSB.
+   - MBit1_NegBit -Negates (inverts) the specified bit of the Input/Output component. It is the same as [PutBit(Bit,!GetBit(Bit)
+                )].  This method is enabled only if the Direction = _[output]_ or _[input/output]_). Pins are addressed form 
+                zero, where 0 is equaled to LSB.
+
+Module "MotorInt"  (component TimerInt)
+   - MotorInt_Enable -This method enables the component - it starts the timer. Events may be generated 
+                (<DisableEvent>/<EnableEvent>).
+   - MotorInt_Disable -This method disables the component - it stops the timer. No events will be generated.
+
+Module "PWM1"      (component PWM)
+   - PWM1_SetRatio16 -This method sets a new duty-cycle ratio. Ratio is expressed as a 16-bit unsigned integer number. 0 - FFFF 
+                value is proportional to ratio 0 - 100%. The method is available only if it is not selected list of predefined 
+                values in <Starting pulse width> property.   Note: Calculated duty depends on the timer possibilities and on 
+                the selected period.
+   - PWM1_SetDutyUS -This method sets the new duty value of the output signal. The duty is expressed in microseconds as a 
+                16-bit unsigned integer number. The method is available only if it is not selected list of predefined values in 
+                <Starting pulse width> property.
+   - PWM1_SetDutyMS -This method sets the new duty value of the output signal. The duty is expressed in milliseconds as a 
+                16-bit unsigned integer number. The method is available only if it is not selected list of predefined values in 
+                <Starting pulse width> property.
+
+Module "LIDAR"     (component ADC)
+   - LIDAR_Measure -This method performs one measurement on all channels that are set in the component inspector. (Note: If the 
+                <number of conversions> is more than one the conversion of A/D channels is performed specified number of times.)
+   - LIDAR_GetValue -Returns the last measured values for all channels. Format and width of the value is a native format of the 
+                A/D converter.
+   - LIDAR_GetValue16 -This method returns the last measured values of all channels. Compared with <GetValue> method this 
+                method returns more accurate result if the <number of conversions> is greater than 1 and <AD resolution> is 
+                less than 16 bits. In addition, the user code dependency on <AD resolution> is eliminated.
+
+Module "LIDARInt"  (component TimerInt)
+   - LIDARInt_Enable -This method enables the component - it starts the timer. Events may be generated 
+                (<DisableEvent>/<EnableEvent>).
+   - LIDARInt_Disable -This method disables the component - it stops the timer. No events will be generated.
+
+Module "MotorInt2" (component TimerInt)
+   - MotorInt2_Enable -This method enables the component - it starts the timer. Events may be generated 
+                (<DisableEvent>/<EnableEvent>).
+   - MotorInt2_Disable -This method disables the component - it stops the timer. No events will be generated.
+
+Module "SendInt"   (component TimerInt)
+   - SendInt_Enable -This method enables the component - it starts the timer. Events may be generated 
+                (<DisableEvent>/<EnableEvent>).
+   - SendInt_Disable -This method disables the component - it stops the timer. No events will be generated.
 
 Module "Cpu"       (component MC9S08QE128_80)
    - Cpu_EnableInt -Enables maskable interrupts
    - Cpu_DisableInt -Disables maskable interrupts
+   - Cpu_Delay100US -This method realizes software delay. The length of delay is at least 100 microsecond multiply input 
+                parameter [us100]. As the delay implementation is not based on real clock, the delay time may be increased by 
+                interrupt service routines processed during the delay. The method is independent on selected speed mode.
 
 ===================================================================================

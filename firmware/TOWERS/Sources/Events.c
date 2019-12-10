@@ -32,7 +32,7 @@
 #include "Events.h"
 
 /* User includes (#include below this line is not maintained by Processor Expert) */
-extern bool motorFlag, lidarFlag;
+extern bool motorFlag, lidarFlag, bufferFlag, bufferPCFlag, sendFlag;
 /*
 ** ===================================================================
 **     Event       :  IR_OnError (module Events)
@@ -161,6 +161,7 @@ void  PC_OnTxChar(void)
 void  PC_OnFullRxBuf(void)
 {
   /* Write your code here ... */
+	bufferPCFlag = FALSE;
 }
 
 /*
@@ -196,6 +197,7 @@ void  PC_OnFreeTxBuf(void)
 void  IR_OnFullRxBuf(void)
 {
   /* Write your code here ... */
+	bufferFlag = FALSE;
 }
 
 /*
@@ -293,6 +295,48 @@ void MotorInt2_OnInterrupt(void)
 {
   /* Write your code here ... */
 	motorFlag = FALSE;
+
+}
+
+/*
+** ===================================================================
+**     Event       :  IR_OnTxComplete (module Events)
+**
+**     Component   :  IR [AsynchroSerial]
+**     Description :
+**         This event indicates that the transmitter is finished
+**         transmitting all data, preamble, and break characters and is
+**         idle. It can be used to determine when it is safe to switch
+**         a line driver (e.g. in RS-485 applications).
+**         The event is available only when both <Interrupt
+**         service/event> and <Transmitter> properties are enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void IR_OnTxComplete(void)
+{
+  /* Write your code here ... */
+}
+
+/*
+** ===================================================================
+**     Event       :  SendInt_OnInterrupt (module Events)
+**
+**     Component   :  SendInt [TimerInt]
+**     Description :
+**         When a timer interrupt occurs this event is called (only
+**         when the component is enabled - <Enable> and the events are
+**         enabled - <EnableEvent>). This event is enabled only if a
+**         <interrupt service/event> is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void SendInt_OnInterrupt(void)
+{
+  /* Write your code here ... */
+	sendFlag = FALSE;
 
 }
 

@@ -6,7 +6,7 @@
 **     Component   : AsynchroSerial
 **     Version     : Component 02.611, Driver 01.33, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-11-08, 13:54, # CodeGen: 4
+**     Date/Time   : 2019-12-02, 13:54, # CodeGen: 23
 **     Abstract    :
 **         This component "AsynchroSerial" implements an asynchronous serial
 **         communication. The component supports different settings of
@@ -18,7 +18,7 @@
 **         Serial channel              : SCI1
 **
 **         Protocol
-**             Init baud rate          : 9600baud
+**             Init baud rate          : 115200baud
 **             Width                   : 8 bits
 **             Stop bits               : 1
 **             Parity                  : none
@@ -61,6 +61,7 @@
 **         ClearTxBuf      - byte PC_ClearTxBuf(void);
 **         GetCharsInRxBuf - word PC_GetCharsInRxBuf(void);
 **         GetCharsInTxBuf - word PC_GetCharsInTxBuf(void);
+**         GetError        - byte PC_GetError(PC_TError *Err);
 **
 **     Copyright : 1997 - 2014 Freescale Semiconductor, Inc. 
 **     All Rights Reserved.
@@ -331,6 +332,27 @@ byte PC_ClearTxBuf(void);
 **     Returns     :
 **         ---             - The number of characters in the output
 **                           buffer.
+** ===================================================================
+*/
+
+byte PC_GetError(PC_TError *Err);
+/*
+** ===================================================================
+**     Method      :  PC_GetError (component AsynchroSerial)
+**     Description :
+**         Returns a set of errors on the channel (errors that cannot
+**         be returned by given methods). The errors accumulate in a
+**         set; after calling [GetError] this set is returned and
+**         cleared.
+**     Parameters  :
+**         NAME            - DESCRIPTION
+**       * Err             - Pointer to the returned set of errors
+**     Returns     :
+**         ---             - Error code (if GetError did not succeed),
+**                           possible codes:
+**                           ERR_OK - OK
+**                           ERR_SPEED - This device does not work in
+**                           the active speed mode
 ** ===================================================================
 */
 

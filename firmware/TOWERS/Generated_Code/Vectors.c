@@ -5,7 +5,7 @@
 **     Processor   : MC9S08QE128CLK
 **     Version     : Component 01.003, Driver 01.40, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-11-15, 14:00, # CodeGen: 14
+**     Date/Time   : 2019-12-04, 13:31, # CodeGen: 32
 **     Abstract    :
 **         This component "MC9S08QE128_80" contains initialization 
 **         of the CPU and provides basic methods and events for 
@@ -61,7 +61,6 @@
 #include "Cpu.h"
 #include "PC.h"
 #include "IR.h"
-#include "Bit1.h"
 #include "MBit1.h"
 #include "Inhr1.h"
 #include "Inhr2.h"
@@ -72,6 +71,7 @@
 #include "LIDAR.h"
 #include "LIDARInt.h"
 #include "MotorInt2.h"
+#include "SendInt.h"
 
 /*lint -save  -e950 Disable MISRA rule (1.1) checking. */
 static void (* near const _vect[])(void) @0xFFC0 = { /* Interrupt vector table */
@@ -82,7 +82,7 @@ static void (* near const _vect[])(void) @0xFFC0 = { /* Interrupt vector table *
          Cpu_Interrupt,                /* Int.no. 28 Vtpm3ch3 (at FFC6)              Unassigned */
          Cpu_Interrupt,                /* Int.no. 27 Vtpm3ch2 (at FFC8)              Unassigned */
          Cpu_Interrupt,                /* Int.no. 26 Vtpm3ch1 (at FFCA)              Unassigned */
-         Cpu_Interrupt,                /* Int.no. 25 Vtpm3ch0 (at FFCC)              Unassigned */
+         SendInt_Interrupt,            /* Int.no. 25 Vtpm3ch0 (at FFCC)              Used */
          MotorInt_Interrupt,           /* Int.no. 24 Vrtc (at FFCE)                  Used */
          IR_InterruptTx,               /* Int.no. 23 Vsci2tx (at FFD0)               Used */
          IR_InterruptRx,               /* Int.no. 22 Vsci2rx (at FFD2)               Used */

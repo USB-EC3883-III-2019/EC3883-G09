@@ -7,7 +7,7 @@
 **     Version     : Component 01.003, Driver 01.40, CPU db: 3.00.067
 **     Datasheet   : MC9S08QE128RM Rev. 2 6/2007
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-11-14, 06:56, # CodeGen: 9
+**     Date/Time   : 2019-12-02, 11:04, # CodeGen: 19
 **     Abstract    :
 **         This component "MC9S08QE128_80" contains initialization 
 **         of the CPU and provides basic methods and events for 
@@ -17,6 +17,7 @@
 **     Contents    :
 **         EnableInt  - void Cpu_EnableInt(void);
 **         DisableInt - void Cpu_DisableInt(void);
+**         Delay100US - void Cpu_Delay100US(word us100);
 **
 **     Copyright : 1997 - 2014 Freescale Semiconductor, Inc. 
 **     All Rights Reserved.
@@ -148,6 +149,24 @@ __interrupt void Cpu_Interrupt(void);
 **     Description :
 **         Enables maskable interrupts
 **     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+void Cpu_Delay100US(word us100);
+/*
+** ===================================================================
+**     Method      :  Cpu_Delay100US (component MC9S08QE128_80)
+**     Description :
+**         This method realizes software delay. The length of delay
+**         is at least 100 microsecond multiply input parameter
+**         [us100]. As the delay implementation is not based on real
+**         clock, the delay time may be increased by interrupt
+**         service routines processed during the delay. The method
+**         is independent on selected speed mode.
+**     Parameters  :
+**         NAME            - DESCRIPTION
+**         us100           - Number of 100 us delay repetitions.
 **     Returns     : Nothing
 ** ===================================================================
 */

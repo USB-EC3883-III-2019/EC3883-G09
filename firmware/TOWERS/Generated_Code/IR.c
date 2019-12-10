@@ -6,7 +6,7 @@
 **     Component   : AsynchroSerial
 **     Version     : Component 02.611, Driver 01.33, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-11-14, 06:56, # CodeGen: 9
+**     Date/Time   : 2019-12-04, 12:00, # CodeGen: 29
 **     Abstract    :
 **         This component "AsynchroSerial" implements an asynchronous serial
 **         communication. The component supports different settings of
@@ -23,8 +23,8 @@
 **             Stop bits               : 1
 **             Parity                  : none
 **             Breaks                  : Disabled
-**             Input buffer size       : 7
-**             Output buffer size      : 7
+**             Input buffer size       : 8
+**             Output buffer size      : 4
 **
 **         Registers
 **             Input buffer            : SCI2D     [$1877]
@@ -61,6 +61,7 @@
 **         ClearTxBuf      - byte IR_ClearTxBuf(void);
 **         GetCharsInRxBuf - word IR_GetCharsInRxBuf(void);
 **         GetCharsInTxBuf - word IR_GetCharsInTxBuf(void);
+**         GetError        - byte IR_GetError(IR_TError *Err);
 **
 **     Copyright : 1997 - 2014 Freescale Semiconductor, Inc. 
 **     All Rights Reserved.
@@ -121,17 +122,22 @@
 
 /* SerFlag bits */
 #define OVERRUN_ERR      0x01U         /* Overrun error flag bit   */
-#define COMMON_ERR       0x02U         /* Common error of RX       */
-#define CHAR_IN_RX       0x04U         /* Char is in RX buffer     */
-#define RUNINT_FROM_TX   0x08U         /* Interrupt is in progress */
-#define FULL_RX          0x10U         /* Full receive buffer      */
+#define FRAMING_ERR      0x02U         /* Framing error flag bit   */
+#define PARITY_ERR       0x04U         /* Parity error flag bit    */
+#define NOISE_ERR        0x08U         /* Noise error flag bit     */
+#define CHAR_IN_RX       0x10U         /* Char is in RX buffer     */
+#define RUNINT_FROM_TX   0x20U         /* Interrupt is in progress */
+#define FULL_RX          0x40U         /* Full receive buffer      */
 
 static volatile byte SerFlag;          /* Flags for serial communication */
                                        /* Bit 0 - Overrun error */
-                                       /* Bit 1 - Common error of RX */
-                                       /* Bit 2 - Char in RX buffer */
-                                       /* Bit 3 - Interrupt is in progress */
-                                       /* Bit 4 - Full RX buffer */
+                                       /* Bit 1 - Framing error */
+                                       /* Bit 2 - Parity error */
+                                       /* Bit 3 - Noise error */
+                                       /* Bit 4 - Char in RX buffer */
+                                       /* Bit 5 - Interrupt is in progress */
+                                       /* Bit 6 - Full RX buffer */
+static volatile byte ErrFlag;          /* Error flags mirror of SerFlag */
 byte IR_InpLen;                        /* Length of the input buffer content */
 static byte InpIndxR;                  /* Index for reading from input buffer */
 static byte InpIndxW;                  /* Index for writing to input buffer */
@@ -182,11 +188,9 @@ byte IR_RecvChar(IR_TComData *Chr)
     EnterCritical();                   /* Save the PS register */
     IR_InpLen--;                       /* Decrease number of received chars */
     *Chr = InpBuffer[InpIndxR];        /* Received char */
-    if (++InpIndxR >= IR_INP_BUF_SIZE) { /* Is the index out of the buffer? */
-      InpIndxR = 0U;                   /* Set the index to the start of the buffer */
-    }
-    Result = (byte)((SerFlag & (OVERRUN_ERR|COMMON_ERR|FULL_RX)) ? ERR_COMMON : ERR_OK);
-    SerFlag &= (byte)(~(byte)(OVERRUN_ERR|COMMON_ERR|FULL_RX|CHAR_IN_RX)); /* Clear all errors in the status variable */
+    InpIndxR = (byte)((InpIndxR + 1U) & (IR_INP_BUF_SIZE - 1U)); /* Update index */
+    Result = (byte)((SerFlag & (OVERRUN_ERR|FRAMING_ERR|PARITY_ERR|NOISE_ERR|FULL_RX)) ? ERR_COMMON : ERR_OK);
+    SerFlag &= (byte)(~(byte)(OVERRUN_ERR|FRAMING_ERR|PARITY_ERR|NOISE_ERR|FULL_RX|CHAR_IN_RX)); /* Clear all errors in the status variable */
     ExitCritical();                    /* Restore the PS register */
   } else {
     return ERR_RXEMPTY;                /* Receiver is empty */
@@ -224,9 +228,7 @@ byte IR_SendChar(IR_TComData Chr)
   EnterCritical();                     /* Save the PS register */
   IR_OutLen++;                         /* Increase number of bytes in the transmit buffer */
   OutBuffer[OutIndxW] = Chr;           /* Store char to buffer */
-  if (++OutIndxW >= IR_OUT_BUF_SIZE) { /* Is the index out of the buffer? */
-    OutIndxW = 0U;                     /* Set the index to the start of the buffer */
-  }
+  OutIndxW = (byte)((OutIndxW + 1U) & (IR_OUT_BUF_SIZE - 1U)); /* Update index */
   if (SCI2C2_TIE == 0U) {              /* Is the transmit interrupt already enabled? */
     SCI2C2_TIE = 0x01U;                /* If no than enable transmit interrupt */
   }
@@ -323,9 +325,7 @@ byte IR_SendBlock(const IR_TComData * Ptr, word Size, word *Snd)
     OnFreeTxBuf_semaphore = TRUE;      /* Set the OnFreeTxBuf_semaphore to block OnFreeTxBuf calling */
     IR_OutLen++;                       /* Increase number of bytes in the transmit buffer */
     OutBuffer[OutIndxW] = *Ptr++;      /* Store char to buffer */
-    if (++OutIndxW >= IR_OUT_BUF_SIZE) { /* Is the index out of the buffer? */
-      OutIndxW = 0U;                   /* Set the index to the start of the buffer */
-    }
+    OutIndxW = (byte)((OutIndxW + 1U) & (IR_OUT_BUF_SIZE - 1U)); /* Update index */
     count++;                           /* Increase the count of sent data */
     if ((count == Size) || (IR_OutLen == IR_OUT_BUF_SIZE)) { /* Is the last desired char put into buffer or the buffer is full? */
       if (!local_OnFreeTxBuf_semaphore) { /* Was the OnFreeTxBuf_semaphore clear before enter the method? */
@@ -435,6 +435,39 @@ word IR_GetCharsInTxBuf(void)
 
 /*
 ** ===================================================================
+**     Method      :  IR_GetError (component AsynchroSerial)
+**     Description :
+**         Returns a set of errors on the channel (errors that cannot
+**         be returned by given methods). The errors accumulate in a
+**         set; after calling [GetError] this set is returned and
+**         cleared.
+**     Parameters  :
+**         NAME            - DESCRIPTION
+**       * Err             - Pointer to the returned set of errors
+**     Returns     :
+**         ---             - Error code (if GetError did not succeed),
+**                           possible codes:
+**                           ERR_OK - OK
+**                           ERR_SPEED - This device does not work in
+**                           the active speed mode
+** ===================================================================
+*/
+byte IR_GetError(IR_TError *Err)
+{
+  EnterCritical();                     /* Save the PS register */
+  Err->err = 0x00U;                    /* Reset last errors */
+  Err->errName.OverRun = ((ErrFlag & OVERRUN_ERR) ? 1U : 0U); /* Overrun error */
+  Err->errName.Framing = ((ErrFlag & FRAMING_ERR ) ? 1U : 0U); /* Framing error */
+  Err->errName.Parity = ((ErrFlag & PARITY_ERR) ? 1U : 0U); /* Parity error */
+  Err->errName.RxBufOvf = ((ErrFlag & FULL_RX) ? 1U : 0U); /* Buffer overflow */
+  Err->errName.Noise = ((ErrFlag & NOISE_ERR) ? 1U : 0U); /* Noise error */
+  ErrFlag = 0x00U;                     /* Clear error flags */
+  ExitCritical();                      /* Restore the PS register */
+  return ERR_OK;                       /* OK */
+}
+
+/*
+** ===================================================================
 **     Method      :  IR_InterruptRx (component AsynchroSerial)
 **
 **     Description :
@@ -457,15 +490,14 @@ ISR(IR_InterruptRx)
   if (IR_InpLen < IR_INP_BUF_SIZE) {   /* Is number of bytes in the receive buffer lower than size of buffer? */
     IR_InpLen++;                       /* Increse number of chars in the receive buffer */
     InpBuffer[InpIndxW] = Data;        /* Save received char to the receive buffer */
-    if (++InpIndxW >= IR_INP_BUF_SIZE) { /* Is the index out of the buffer? */
-      InpIndxW = 0U;                   /* Set the index to the start of the buffer */
-    }
+    InpIndxW = (byte)((InpIndxW + 1U) & (IR_INP_BUF_SIZE - 1U)); /* Update index */
     OnFlags |= ON_RX_CHAR;             /* Set flag "OnRXChar" */
     if (IR_InpLen== IR_INP_BUF_SIZE) { /* Is number of bytes in the receive buffer equal as a size of buffer? */
       OnFlags |= ON_FULL_RX;           /* If yes then set flag "OnFullRxBuff" */
     }
   } else {
     SerFlag |= FULL_RX;                /* If yes then set flag buffer overflow */
+    ErrFlag |= FULL_RX;
     OnFlags |= ON_ERROR;               /* Set flag "OnError" */
   }
   if (OnFlags & ON_ERROR) {            /* Is OnError flag set? */
@@ -497,6 +529,13 @@ ISR(IR_InterruptTx)
 {
   byte OnFlags = 0x00U;                /* Temporary variable for flags */
 
+  if (SCI2C2_TCIE) {
+    if (SCI2S1_TC) {                   /* Was the interrupt caused by the transmission complete flag? */
+      SCI2C2_TCIE = 0x00U;             /* Disable transmission complete interrupt */
+      IR_OnTxComplete();               /* Invoke user invent */
+      return;
+    }
+  }
   if (SerFlag & RUNINT_FROM_TX) {      /* Is flag "running int from TX" set? */
     OnFlags |= ON_TX_CHAR;             /* Set flag "OnTxChar" */
   }
@@ -506,14 +545,13 @@ ISR(IR_InterruptTx)
     SerFlag |= RUNINT_FROM_TX;         /* Set flag "running int from TX" */
     (void)SCI2S1;                      /* Reset interrupt request flag */
     SCI2D = OutBuffer[OutIndxR];       /* Store char to transmitter register */
-    if (++OutIndxR >= IR_OUT_BUF_SIZE) { /* Is the index out of the buffer? */
-      OutIndxR = 0U;                   /* Set the index to the start of the buffer */
-    }
+    OutIndxR = (byte)((OutIndxR + 1U) & (IR_OUT_BUF_SIZE - 1U)); /* Update index */
   } else {
     if (!OnFreeTxBuf_semaphore) {
       OnFlags |= ON_FREE_TX;           /* Set flag "OnFreeTxBuf" */
     }
     SCI2C2_TIE = 0x00U;                /* Disable transmit interrupt */
+    SCI2C2_TCIE = 0x01U;               /* Enable transmission complete interrupt */
   }
   if (OnFlags & ON_TX_CHAR) {          /* Is flag "OnTxChar" set? */
     IR_OnTxChar();                     /* If yes then invoke user event */
@@ -536,10 +574,28 @@ ISR(IR_InterruptTx)
 ISR(IR_InterruptError)
 {
   byte StatReg = getReg(SCI2S1);
+  byte OnFlags = 0x00U;                /* Temporary variable for flags */
 
   (void)SCI2D;                         /* Dummy read of data register - clear error bits */
-  SerFlag |= COMMON_ERR;               /* If yes then set an internal flag */
-  IR_OnError();                        /* Invoke user event */
+  if (StatReg & SCI2S1_OR_MASK) {      /* Is overrun error detected? */
+    OnFlags |= OVERRUN_ERR;            /* If yes then set an internal flag */
+  }
+  else {
+    if (StatReg & SCI2S1_NF_MASK) {    /* Is noise error detected? */
+      OnFlags |= NOISE_ERR;            /* If yes then set an internal flag */
+    }
+    if (StatReg & SCI2S1_FE_MASK) {    /* Is framing error detected? */
+      OnFlags |= FRAMING_ERR;          /* If yes then set an internal flag */
+    }
+    if (StatReg & SCI2S1_PF_MASK) {
+      OnFlags |= PARITY_ERR;
+    }
+  }
+  SerFlag |= OnFlags;                  /* Copy flags status to SerFlag status variable */
+  ErrFlag |= OnFlags;                  /* Copy flags status to ErrFlag status variable */
+  if (OnFlags & (OVERRUN_ERR|FRAMING_ERR|PARITY_ERR|NOISE_ERR)) { /* Was any error set? */
+    IR_OnError();                      /* If yes then invoke user event */
+  }
 }
 
 /*
@@ -556,6 +612,7 @@ ISR(IR_InterruptError)
 void IR_Init(void)
 {
   SerFlag = 0x00U;                     /* Reset flags */
+  ErrFlag = 0x00U;                     /* Reset error flags */
   OnFreeTxBuf_semaphore = FALSE;       /* Clear the OnFreeTxBuf_semaphore */
   IR_InpLen = 0x00U;                   /* No char in the receive buffer */
   InpIndxR = 0x00U;                    /* Reset read index to the receive buffer */
@@ -565,8 +622,8 @@ void IR_Init(void)
   OutIndxW = 0x00U;                    /* Reset write index to the transmit buffer */
   /* SCI2C1: LOOPS=0,SCISWAI=0,RSRC=0,M=0,WAKE=0,ILT=0,PE=0,PT=0 */
   setReg8(SCI2C1, 0x00U);              /* Configure the SCI */ 
-  /* SCI2C3: R8=0,T8=0,TXDIR=0,TXINV=0,ORIE=0,NEIE=0,FEIE=0,PEIE=0 */
-  setReg8(SCI2C3, 0x00U);              /* Disable error interrupts */ 
+  /* SCI2C3: R8=0,T8=0,TXDIR=0,TXINV=1,ORIE=0,NEIE=0,FEIE=0,PEIE=0 */
+  setReg8(SCI2C3, 0x10U);              /* Disable error interrupts */ 
   /* SCI2C2: TIE=0,TCIE=0,RIE=0,ILIE=0,TE=0,RE=0,RWU=0,SBK=0 */
   setReg8(SCI2C2, 0x00U);              /* Disable all interrupts */ 
   /* SCI2S2: LBKDIF=0,RXEDGIF=0,??=0,RXINV=0,RWUID=0,BRK13=0,LBKDE=0,RAF=0 */

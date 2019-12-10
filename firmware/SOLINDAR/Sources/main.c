@@ -132,7 +132,7 @@ void main(void)
   	  //Ultrasonic burst
 	  
   	  //Echo
-	  while(echo_flg){}	//Wait for interrupt.
+	  //while(echo_flg){}	//Wait for interrupt.
 	  echo_flg = !echo_flg;	//Restoring the flag
 	  
 		son_dis_arr[i] = echo_time;

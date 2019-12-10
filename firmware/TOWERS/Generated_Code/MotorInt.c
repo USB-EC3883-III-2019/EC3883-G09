@@ -6,7 +6,7 @@
 **     Component   : TimerInt
 **     Version     : Component 02.161, Driver 01.23, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-11-15, 13:49, # CodeGen: 13
+**     Date/Time   : 2019-12-07, 17:01, # CodeGen: 40
 **     Abstract    :
 **         This component "TimerInt" implements a periodic interrupt.
 **         When the component and its events are enabled, the "OnInterrupt"
@@ -21,13 +21,13 @@
 **
 **         High speed mode
 **             Prescaler               : divide-by-1
-**             Clock                   : 8192 Hz
+**             Clock                   : 4096 Hz
 **           Initial period/frequency
-**             Xtal ticks              : 1501465
-**             microseconds            : 30029
-**             milliseconds            : 30
-**             seconds (real)          : 0.030029296875
-**             Hz                      : 33
+**             Xtal ticks              : 2502441
+**             microseconds            : 50049
+**             milliseconds            : 50
+**             seconds (real)          : 0.050048828125
+**             Hz                      : 20
 **
 **         Runtime setting             : none
 **
@@ -151,8 +151,8 @@ static void HWEnDi(void);
 static void HWEnDi(void)
 {
   if (EnUser) {
-    /* RTCSC: RTIF=1,RTCLKS=2,RTIE=1,RTCPS=0x0A */
-    setReg8(RTCSC, 0xDAU);             /* Run RTC (select clock source; set frequency and enable interrupt) */ 
+    /* RTCSC: RTIF=1,RTCLKS=2,RTIE=1,RTCPS=1 */
+    setReg8(RTCSC, 0xD1U);             /* Run RTC (select clock source; set frequency and enable interrupt) */ 
   } else {
     /* RTCSC: RTCPS=0 */
     clrReg8Bits(RTCSC, 0x0FU);         /* Stop counter */ 
@@ -221,7 +221,7 @@ void MotorInt_Init(void)
   /* RTCSC: RTIF=0,RTCLKS=0,RTIE=0,RTCPS=0 */
   setReg8(RTCSC, 0x00U);               /* Stop HW */ 
   EnUser = TRUE;                       /* Enable device */
-  MotorInt_SetCV(0xF5U);               /* Initialize appropriate value to the compare/modulo/reload register */
+  MotorInt_SetCV(0xCCU);               /* Initialize appropriate value to the compare/modulo/reload register */
   RTCMOD = RTCMOD;                     /* Reset HW counter */
   HWEnDi();
 }

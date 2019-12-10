@@ -1,6 +1,6 @@
 # Motor
 Q1 -> PTF0
-Q2 -> PTF1		OJO CAMBIAAAAR
+Q2 -> PTF1		
 Q3 -> PTA6
 Q4 -> PTA7
 
@@ -16,3 +16,7 @@ ADC -> PTB2
 	Esta conectado con un divisor de voltaje 
 
 
+# Com IR
+PWM -> PTA0
+Serial Tx -> PTC7
+Serial Rx -> PTC6

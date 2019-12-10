@@ -37,7 +37,6 @@
 #include "PE_Timer.h"
 #include "PC.h"
 #include "IR.h"
-#include "Bit1.h"
 #include "MBit1.h"
 #include "Inhr1.h"
 #include "Inhr2.h"
@@ -48,6 +47,7 @@
 #include "LIDAR.h"
 #include "LIDARInt.h"
 #include "MotorInt2.h"
+#include "SendInt.h"
 
 
 void IR_OnError(void);
@@ -256,6 +256,40 @@ void MotorInt2_OnInterrupt(void);
 **     Event       :  MotorInt2_OnInterrupt (module Events)
 **
 **     Component   :  MotorInt2 [TimerInt]
+**     Description :
+**         When a timer interrupt occurs this event is called (only
+**         when the component is enabled - <Enable> and the events are
+**         enabled - <EnableEvent>). This event is enabled only if a
+**         <interrupt service/event> is enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+void IR_OnTxComplete(void);
+/*
+** ===================================================================
+**     Event       :  IR_OnTxComplete (module Events)
+**
+**     Component   :  IR [AsynchroSerial]
+**     Description :
+**         This event indicates that the transmitter is finished
+**         transmitting all data, preamble, and break characters and is
+**         idle. It can be used to determine when it is safe to switch
+**         a line driver (e.g. in RS-485 applications).
+**         The event is available only when both <Interrupt
+**         service/event> and <Transmitter> properties are enabled.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+void SendInt_OnInterrupt(void);
+/*
+** ===================================================================
+**     Event       :  SendInt_OnInterrupt (module Events)
+**
+**     Component   :  SendInt [TimerInt]
 **     Description :
 **         When a timer interrupt occurs this event is called (only
 **         when the component is enabled - <Enable> and the events are

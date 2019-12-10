@@ -6,7 +6,7 @@
 **     Component   : AsynchroSerial
 **     Version     : Component 02.611, Driver 01.33, CPU db: 3.00.067
 **     Compiler    : CodeWarrior HCS08 C Compiler
-**     Date/Time   : 2019-11-09, 17:30, # CodeGen: 5
+**     Date/Time   : 2019-12-02, 13:54, # CodeGen: 23
 **     Abstract    :
 **         This component "AsynchroSerial" implements an asynchronous serial
 **         communication. The component supports different settings of
@@ -18,7 +18,7 @@
 **         Serial channel              : SCI1
 **
 **         Protocol
-**             Init baud rate          : 9600baud
+**             Init baud rate          : 115200baud
 **             Width                   : 8 bits
 **             Stop bits               : 1
 **             Parity                  : none
@@ -61,6 +61,7 @@
 **         ClearTxBuf      - byte PC_ClearTxBuf(void);
 **         GetCharsInRxBuf - word PC_GetCharsInRxBuf(void);
 **         GetCharsInTxBuf - word PC_GetCharsInTxBuf(void);
+**         GetError        - byte PC_GetError(PC_TError *Err);
 **
 **     Copyright : 1997 - 2014 Freescale Semiconductor, Inc. 
 **     All Rights Reserved.
@@ -121,17 +122,22 @@
 
 /* SerFlag bits */
 #define OVERRUN_ERR      0x01U         /* Overrun error flag bit   */
-#define COMMON_ERR       0x02U         /* Common error of RX       */
-#define CHAR_IN_RX       0x04U         /* Char is in RX buffer     */
-#define RUNINT_FROM_TX   0x08U         /* Interrupt is in progress */
-#define FULL_RX          0x10U         /* Full receive buffer      */
+#define FRAMING_ERR      0x02U         /* Framing error flag bit   */
+#define PARITY_ERR       0x04U         /* Parity error flag bit    */
+#define NOISE_ERR        0x08U         /* Noise error flag bit     */
+#define CHAR_IN_RX       0x10U         /* Char is in RX buffer     */
+#define RUNINT_FROM_TX   0x20U         /* Interrupt is in progress */
+#define FULL_RX          0x40U         /* Full receive buffer      */
 
 static volatile byte SerFlag;          /* Flags for serial communication */
                                        /* Bit 0 - Overrun error */
-                                       /* Bit 1 - Common error of RX */
-                                       /* Bit 2 - Char in RX buffer */
-                                       /* Bit 3 - Interrupt is in progress */
-                                       /* Bit 4 - Full RX buffer */
+                                       /* Bit 1 - Framing error */
+                                       /* Bit 2 - Parity error */
+                                       /* Bit 3 - Noise error */
+                                       /* Bit 4 - Char in RX buffer */
+                                       /* Bit 5 - Interrupt is in progress */
+                                       /* Bit 6 - Full RX buffer */
+static volatile byte ErrFlag;          /* Error flags mirror of SerFlag */
 byte PC_InpLen;                        /* Length of the input buffer content */
 static byte InpIndxR;                  /* Index for reading from input buffer */
 static byte InpIndxW;                  /* Index for writing to input buffer */
@@ -183,8 +189,8 @@ byte PC_RecvChar(PC_TComData *Chr)
     PC_InpLen--;                       /* Decrease number of received chars */
     *Chr = InpBuffer[InpIndxR];        /* Received char */
     InpIndxR = (byte)((InpIndxR + 1U) & (PC_INP_BUF_SIZE - 1U)); /* Update index */
-    Result = (byte)((SerFlag & (OVERRUN_ERR|COMMON_ERR|FULL_RX)) ? ERR_COMMON : ERR_OK);
-    SerFlag &= (byte)(~(byte)(OVERRUN_ERR|COMMON_ERR|FULL_RX|CHAR_IN_RX)); /* Clear all errors in the status variable */
+    Result = (byte)((SerFlag & (OVERRUN_ERR|FRAMING_ERR|PARITY_ERR|NOISE_ERR|FULL_RX)) ? ERR_COMMON : ERR_OK);
+    SerFlag &= (byte)(~(byte)(OVERRUN_ERR|FRAMING_ERR|PARITY_ERR|NOISE_ERR|FULL_RX|CHAR_IN_RX)); /* Clear all errors in the status variable */
     ExitCritical();                    /* Restore the PS register */
   } else {
     return ERR_RXEMPTY;                /* Receiver is empty */
@@ -429,6 +435,39 @@ word PC_GetCharsInTxBuf(void)
 
 /*
 ** ===================================================================
+**     Method      :  PC_GetError (component AsynchroSerial)
+**     Description :
+**         Returns a set of errors on the channel (errors that cannot
+**         be returned by given methods). The errors accumulate in a
+**         set; after calling [GetError] this set is returned and
+**         cleared.
+**     Parameters  :
+**         NAME            - DESCRIPTION
+**       * Err             - Pointer to the returned set of errors
+**     Returns     :
+**         ---             - Error code (if GetError did not succeed),
+**                           possible codes:
+**                           ERR_OK - OK
+**                           ERR_SPEED - This device does not work in
+**                           the active speed mode
+** ===================================================================
+*/
+byte PC_GetError(PC_TError *Err)
+{
+  EnterCritical();                     /* Save the PS register */
+  Err->err = 0x00U;                    /* Reset last errors */
+  Err->errName.OverRun = ((ErrFlag & OVERRUN_ERR) ? 1U : 0U); /* Overrun error */
+  Err->errName.Framing = ((ErrFlag & FRAMING_ERR ) ? 1U : 0U); /* Framing error */
+  Err->errName.Parity = ((ErrFlag & PARITY_ERR) ? 1U : 0U); /* Parity error */
+  Err->errName.RxBufOvf = ((ErrFlag & FULL_RX) ? 1U : 0U); /* Buffer overflow */
+  Err->errName.Noise = ((ErrFlag & NOISE_ERR) ? 1U : 0U); /* Noise error */
+  ErrFlag = 0x00U;                     /* Clear error flags */
+  ExitCritical();                      /* Restore the PS register */
+  return ERR_OK;                       /* OK */
+}
+
+/*
+** ===================================================================
 **     Method      :  PC_InterruptRx (component AsynchroSerial)
 **
 **     Description :
@@ -458,6 +497,7 @@ ISR(PC_InterruptRx)
     }
   } else {
     SerFlag |= FULL_RX;                /* If yes then set flag buffer overflow */
+    ErrFlag |= FULL_RX;
     OnFlags |= ON_ERROR;               /* Set flag "OnError" */
   }
   if (OnFlags & ON_ERROR) {            /* Is OnError flag set? */
@@ -526,10 +566,28 @@ ISR(PC_InterruptTx)
 ISR(PC_InterruptError)
 {
   byte StatReg = getReg(SCI1S1);
+  byte OnFlags = 0x00U;                /* Temporary variable for flags */
 
   (void)SCI1D;                         /* Dummy read of data register - clear error bits */
-  SerFlag |= COMMON_ERR;               /* If yes then set an internal flag */
-  PC_OnError();                        /* Invoke user event */
+  if (StatReg & SCI1S1_OR_MASK) {      /* Is overrun error detected? */
+    OnFlags |= OVERRUN_ERR;            /* If yes then set an internal flag */
+  }
+  else {
+    if (StatReg & SCI1S1_NF_MASK) {    /* Is noise error detected? */
+      OnFlags |= NOISE_ERR;            /* If yes then set an internal flag */
+    }
+    if (StatReg & SCI1S1_FE_MASK) {    /* Is framing error detected? */
+      OnFlags |= FRAMING_ERR;          /* If yes then set an internal flag */
+    }
+    if (StatReg & SCI1S1_PF_MASK) {
+      OnFlags |= PARITY_ERR;
+    }
+  }
+  SerFlag |= OnFlags;                  /* Copy flags status to SerFlag status variable */
+  ErrFlag |= OnFlags;                  /* Copy flags status to ErrFlag status variable */
+  if (OnFlags & (OVERRUN_ERR|FRAMING_ERR|PARITY_ERR|NOISE_ERR)) { /* Was any error set? */
+    PC_OnError();                      /* If yes then invoke user event */
+  }
 }
 
 /*
@@ -546,6 +604,7 @@ ISR(PC_InterruptError)
 void PC_Init(void)
 {
   SerFlag = 0x00U;                     /* Reset flags */
+  ErrFlag = 0x00U;                     /* Reset error flags */
   OnFreeTxBuf_semaphore = FALSE;       /* Clear the OnFreeTxBuf_semaphore */
   PC_InpLen = 0x00U;                   /* No char in the receive buffer */
   InpIndxR = 0x00U;                    /* Reset read index to the receive buffer */
@@ -562,7 +621,7 @@ void PC_Init(void)
   /* SCI1S2: LBKDIF=0,RXEDGIF=0,??=0,RXINV=0,RWUID=0,BRK13=0,LBKDE=0,RAF=0 */
   setReg8(SCI1S2, 0x00U);               
   SCI1BDH = 0x00U;                     /* Set high divisor register (enable device) */
-  SCI1BDL = 0xA4U;                     /* Set low divisor register (enable device) */
+  SCI1BDL = 0x0EU;                     /* Set low divisor register (enable device) */
       /* SCI1C3: ORIE=1,NEIE=1,FEIE=1,PEIE=1 */
   SCI1C3 |= 0x0FU;                     /* Enable error interrupts */
   SCI1C2 |= (SCI1C2_TE_MASK | SCI1C2_RE_MASK | SCI1C2_RIE_MASK); /*  Enable transmitter, Enable receiver, Enable receiver interrupt */
